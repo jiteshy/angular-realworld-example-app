@@ -1,455 +1,481 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Angular RealWorld - Architecture Diagram</title>
     <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
     <style>
-        body {
-            margin: 0;
-            padding: 20px;
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background-color: #f8f9fa;
-        }
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
 
-        .container {
-            max-width: 100%;
-            margin: 0 auto;
-            background: white;
-            border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-            overflow: hidden;
-        }
+      body,
+      html {
+        width: 100vw;
+        height: 100vh;
+        overflow: hidden;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+          sans-serif;
+      }
 
-        .header {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 20px;
-            text-align: center;
-        }
+      .container {
+        display: flex;
+        flex-direction: column;
+        width: 100vw;
+        height: 100vh;
+      }
 
-        .header h1 {
-            margin: 0;
-            font-size: 2em;
-            font-weight: 300;
-        }
+      .header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 12px 20px;
+        text-align: center;
+        flex-shrink: 0;
+      }
 
-        .header p {
-            margin: 10px 0 0 0;
-            opacity: 0.9;
-            font-size: 1.1em;
-        }
+      .header h1 {
+        font-size: 1.4em;
+        margin-bottom: 4px;
+        font-weight: 600;
+      }
 
-        .zoom-controls {
-            background: #f1f3f4;
-            padding: 15px 20px;
-            border-bottom: 1px solid #e1e5e9;
-            display: flex;
-            justify-content: flex-end;
-            align-items: center;
-        }
+      .header p {
+        font-size: 0.9em;
+        opacity: 0.9;
+      }
 
-        .zoom-controls-group {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-        }
+      .zoom-controls {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        background: #f8f9fa;
+        padding: 8px 20px;
+        border-bottom: 1px solid #dee2e6;
+        flex-shrink: 0;
+      }
 
-        .zoom-buttons {
-            display: flex;
-            gap: 10px;
-        }
+      .status-message {
+        font-size: 12px;
+        font-weight: 500;
+      }
 
-        .zoom-btn {
-            background: #007bff;
-            border: none;
-            color: white;
-            padding: 8px 16px;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 14px;
-            font-weight: 500;
-            transition: all 0.2s ease;
-        }
+      .status-positive {
+        color: #000;
+      }
 
-        .zoom-btn:hover {
-            background: #0056b3;
-            transform: translateY(-1px);
-            box-shadow: 0 2px 8px rgba(0, 123, 255, 0.3);
-        }
+      .status-negative {
+        color: #dc3545;
+      }
 
-        .zoom-btn:active {
-            transform: translateY(0);
-        }
+      .zoom-controls-group {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
 
-        #diagram {
-            overflow: auto;
-            position: relative;
-            height: calc(100vh - 200px);
-            min-height: 600px;
-        }
+      .usage-hint {
+        font-size: 11px;
+        color: #6c757d;
+        margin-right: 8px;
+      }
 
-        .diagram-container {
-            transform-origin: top left;
-            transition: transform 0.3s ease;
-            min-width: 100%;
-            min-height: 100%;
-            display: flex;
-            justify-content: center;
-            align-items: flex-start;
-            padding: 20px;
-        }
+      .zoom-buttons {
+        display: flex;
+        gap: 4px;
+      }
 
-        .mermaid {
-            max-width: none !important;
-        }
+      .zoom-btn {
+        background: #fff;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        padding: 4px 8px;
+        font-size: 11px;
+        cursor: pointer;
+        transition: all 0.2s;
+      }
 
-        .usage-hint {
-            color: #666;
-            font-size: 12px;
-            line-height: 1.4;
-        }
+      .zoom-btn:hover {
+        background: #f8f9fa;
+        border-color: #adb5bd;
+      }
 
-        .info-panel {
-            background: #e3f2fd;
-            border-left: 4px solid #2196F3;
-            padding: 15px 20px;
-            margin: 0;
-            border-bottom: 1px solid #e1e5e9;
-        }
+      .zoom-btn:active {
+        background: #e9ecef;
+      }
 
-        .info-panel h3 {
-            margin: 0 0 10px 0;
-            color: #1976D2;
-            font-size: 1.1em;
-        }
+      #diagram {
+        flex: 1;
+        position: relative;
+        overflow: auto;
+        background: #fafafa;
+      }
 
-        .info-panel p {
-            margin: 5px 0;
-            color: #424242;
-            font-size: 14px;
-        }
+      .zoom-level-indicator {
+        position: absolute;
+        top: 10px;
+        left: 10px;
+        background: rgba(0, 0, 0, 0.7);
+        color: white;
+        padding: 4px 8px;
+        border-radius: 4px;
+        font-size: 11px;
+        z-index: 1000;
+        pointer-events: none;
+      }
 
-        .info-panel ul {
-            margin: 10px 0;
-            padding-left: 20px;
-            color: #424242;
-            font-size: 14px;
-        }
+      .diagram-container {
+        display: inline-block;
+        margin: 0 auto;
+        transform-origin: center center;
+        transition: transform 0.3s ease;
+      }
 
-        .info-panel li {
-            margin: 3px 0;
-        }
+      .mermaid {
+        background: white;
+        border-radius: 4px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        margin: 20px;
+      }
 
-        /* Responsive design */
-        @media (max-width: 768px) {
-            .zoom-controls-group {
-                flex-direction: column;
-                gap: 10px;
-                align-items: flex-end;
-            }
-            
-            .usage-hint {
-                text-align: right;
-                font-size: 11px;
-            }
-        }
+      .legend {
+        background: #fff;
+        border-top: 1px solid #dee2e6;
+        padding: 10px;
+        max-height: 100px;
+        overflow-y: auto;
+        flex-shrink: 0;
+      }
+
+      .legend-grid {
+        display: grid;
+        grid-template-columns: repeat(6, 1fr);
+        gap: 6px;
+      }
+
+      .legend-item {
+        display: flex;
+        align-items: center;
+        padding: 4px;
+        border-radius: 3px;
+        font-size: 11px;
+      }
+
+      .legend-color {
+        width: 12px;
+        height: 12px;
+        border-radius: 2px;
+        margin-right: 6px;
+      }
+
+      /* Legend Colors */
+      .ui-color {
+        background-color: #e1f5fe;
+        border: 1px solid #0277bd;
+      }
+      .feature-color {
+        background-color: #f3e5f5;
+        border: 1px solid #7b1fa2;
+      }
+      .service-color {
+        background-color: #e8f5e8;
+        border: 1px solid #2e7d32;
+      }
+      .http-color {
+        background-color: #fff3e0;
+        border: 1px solid #f57c00;
+      }
+      .external-color {
+        background-color: #ffebee;
+        border: 1px solid #d32f2f;
+      }
+      .shared-color {
+        background-color: #f1f8e9;
+        border: 1px solid #558b2f;
+      }
+      .tech-color {
+        background-color: #e3f2fd;
+        border: 1px solid #1976d2;
+      }
+      .warning-color {
+        background-color: #fff8e1;
+        border: 1px solid #ff8f00;
+      }
     </style>
-</head>
-<body>
+  </head>
+  <body>
     <div class="container">
-        <div class="header">
-            <h1>Angular RealWorld Example App</h1>
-            <p>System Architecture Diagram</p>
+      <div class="header">
+        <h1>Angular RealWorld Example App - Architecture</h1>
+        <p>System Architecture Diagram</p>
+      </div>
+
+      <div class="zoom-controls">
+        <div class="status-message status-positive">
+          Click components to view source files on GitHub
         </div>
-
-        <div class="info-panel">
-            <h3>🏗️ Architecture Overview</h3>
-            <p>This diagram shows the complete system architecture of the Angular RealWorld application, including all major components, services, and their relationships.</p>
-            <ul>
-                <li><strong>Click on components</strong> to view the corresponding source files</li>
-                <li><strong>Color-coded layers</strong> represent different architectural concerns</li>
-                <li><strong>Arrows show</strong> data flow and dependencies between components</li>
-                <li><strong>External API integration</strong> with the RealWorld backend service</li>
-            </ul>
+        <div class="zoom-controls-group">
+          <span class="usage-hint"
+            >Use Ctrl/Cmd + mouse wheel or keyboard (+/- keys) to zoom</span
+          >
+          <div class="zoom-buttons">
+            <button class="zoom-btn" onclick="zoomIn()">+ Zoom In</button>
+            <button class="zoom-btn" onclick="zoomOut()">- Zoom Out</button>
+            <button class="zoom-btn" onclick="resetZoom()">Reset</button>
+          </div>
         </div>
+      </div>
 
-        <div class="zoom-controls">
-            <div class="zoom-controls-group">
-                <span class="usage-hint">
-                    Use Ctrl/Cmd + mouse wheel or keyboard (+/- keys) to zoom
-                </span>
-                <div class="zoom-buttons">
-                    <button class="zoom-btn" onclick="zoomIn()">+ Zoom In</button>
-                    <button class="zoom-btn" onclick="zoomOut()">- Zoom Out</button>
-                    <button class="zoom-btn" onclick="resetZoom()">Reset</button>
-                </div>
-            </div>
+      <div id="diagram">
+        <div class="zoom-level-indicator" id="zoomIndicator">25%</div>
+        <div class="diagram-container">
+          <div class="mermaid">
+            flowchart TD %% User Interface Layer subgraph UILayer ["🎨 User
+            Interface Layer"] App["App Component<br />(Root)"] Header["Header
+            Component<br />(Navigation)"] Footer["Footer Component<br />(Footer)"]
+            end %% Feature Components subgraph Features ["🚀 Feature
+            Components"] subgraph ArticleFeature ["📰 Article Feature"]
+            Home["Home Component<br />(Article List)"] ArticleDetail["Article
+            Component<br />(Article View)"] Editor["Editor Component<br />(⚠️
+            CRUD Bug)"] ArticleList["Article List Component<br />(List
+            Display)"] ArticleMeta["Article Meta Component<br />(Author Info)"]
+            end subgraph ProfileFeature ["👤 Profile Feature"] Profile["Profile
+            Component<br />(User Profile)"] ProfileArticles["Profile Articles<br />(User
+            Articles)"] ProfileFavorites["Profile Favorites<br />(Liked
+            Articles)"] end subgraph AuthFeature ["🔐 Auth Feature"] Auth["Auth
+            Component<br />(Login/Register)"] Settings["Settings Component<br />(User
+            Settings)"] end end %% Service Layer subgraph Services ["⚙️ Service
+            Layer"] UserService["User Service<br />(BehaviorSubject State)"]
+            ArticleService["Article Service<br />(CRUD Operations)"]
+            ProfileService["Profile Service<br />(User Profiles)"]
+            JwtService["JWT Service<br />(Token Management)"]
+            CommentsService["Comments Service<br />(Comments CRUD)"]
+            TagsService["Tags Service<br />(Tag Management)"] end %% HTTP Layer
+            subgraph HTTPLayer ["🌐 HTTP Layer"] HttpClient["Angular
+            HttpClient<br />(HTTP Requests)"] subgraph Interceptors ["🔌
+            Interceptors"] APIInterceptor["API Interceptor<br />(Base URL)"]
+            TokenInterceptor["Token Interceptor<br />(JWT Headers)"]
+            ErrorInterceptor["Error Interceptor<br />(Error Handling)"] end end
+            %% External API subgraph External ["🌍 External Services"]
+            RealWorldAPI["RealWorld API<br />(api.realworld.io)"]
+            LocalStorage["Browser LocalStorage<br />(JWT Token)"] end %% Shared
+            Components subgraph Shared ["🔧 Shared Components"] ListErrors["List
+            Errors Component<br />(Error Display)"] MarkdownPipe["Markdown
+            Pipe<br />(Marked.js)"] FavoriteButton["Favorite Button<br />(UI
+            Only)"] FollowButton["Follow Button<br />(UI Only)"] end %%
+            Technology Stack subgraph TechStack ["📚 Technology Stack"]
+            Angular["Angular 20.0.0<br />(Standalone Components)"]
+            TypeScript["TypeScript 5.8.3<br />(Language)"] RxJS["RxJS 7.4.0<br />(Reactive
+            Programming)"] Bootstrap["Bootstrap<br />(Styling)"]
+            Marked["Marked.js<br />(Markdown)"] end %% Data Flow Connections App
+            --> Header App --> Footer %% Feature to Service Connections Home -->
+            ArticleService ArticleDetail --> ArticleService ArticleDetail -->
+            CommentsService Editor --> ArticleService Profile --> ProfileService
+            Auth --> UserService Settings --> UserService %% Service to HTTP
+            Connections UserService --> HttpClient ArticleService --> HttpClient
+            ProfileService --> HttpClient CommentsService --> HttpClient
+            TagsService --> HttpClient JwtService --> LocalStorage %% HTTP Layer
+            Flow HttpClient --> APIInterceptor APIInterceptor -->
+            TokenInterceptor TokenInterceptor --> ErrorInterceptor
+            ErrorInterceptor --> RealWorldAPI %% Shared Component Usage Auth -->
+            ListErrors Settings --> ListErrors ArticleDetail --> MarkdownPipe
+            Home --> FavoriteButton Profile --> FollowButton %% State Management
+            UserService -.->|"Observable State"| Auth UserService
+            -.->|"Observable State"| Header UserService -.->|"Observable State"|
+            Settings %% Click Events for GitHub Navigation click App href
+            "https://github.com/jiteshy/angular-realworld-example-app/blob/main/src/app/app.component.ts"
+            _blank click Header href
+            "https://github.com/jiteshy/angular-realworld-example-app/blob/main/src/app/core/layout/header.component.ts"
+            _blank click Footer href
+            "https://github.com/jiteshy/angular-realworld-example-app/blob/main/src/app/core/layout/footer.component.ts"
+            _blank click Home href
+            "https://github.com/jiteshy/angular-realworld-example-app/blob/main/src/app/features/article/pages/home/home.component.ts"
+            _blank click ArticleDetail href
+            "https://github.com/jiteshy/angular-realworld-example-app/blob/main/src/app/features/article/pages/article/article.component.ts"
+            _blank click Editor href
+            "https://github.com/jiteshy/angular-realworld-example-app/blob/main/src/app/features/article/pages/editor/editor.component.ts"
+            _blank click Profile href
+            "https://github.com/jiteshy/angular-realworld-example-app/blob/main/src/app/features/profile/pages/profile/profile.component.ts"
+            _blank click Auth href
+            "https://github.com/jiteshy/angular-realworld-example-app/blob/main/src/app/core/auth/auth.component.ts"
+            _blank click Settings href
+            "https://github.com/jiteshy/angular-realworld-example-app/blob/main/src/app/features/settings/settings.component.ts"
+            _blank click UserService href
+            "https://github.com/jiteshy/angular-realworld-example-app/blob/main/src/app/core/auth/services/user.service.ts"
+            _blank click ArticleService href
+            "https://github.com/jiteshy/angular-realworld-example-app/blob/main/src/app/features/article/services/articles.service.ts"
+            _blank click ProfileService href
+            "https://github.com/jiteshy/angular-realworld-example-app/blob/main/src/app/features/profile/services/profile.service.ts"
+            _blank click JwtService href
+            "https://github.com/jiteshy/angular-realworld-example-app/blob/main/src/app/core/auth/services/jwt.service.ts"
+            _blank click CommentsService href
+            "https://github.com/jiteshy/angular-realworld-example-app/blob/main/src/app/features/article/services/comments.service.ts"
+            _blank click TagsService href
+            "https://github.com/jiteshy/angular-realworld-example-app/blob/main/src/app/features/article/services/tags.service.ts"
+            _blank click APIInterceptor href
+            "https://github.com/jiteshy/angular-realworld-example-app/blob/main/src/app/core/interceptors/api.interceptor.ts"
+            _blank click TokenInterceptor href
+            "https://github.com/jiteshy/angular-realworld-example-app/blob/main/src/app/core/interceptors/token.interceptor.ts"
+            _blank click ErrorInterceptor href
+            "https://github.com/jiteshy/angular-realworld-example-app/blob/main/src/app/core/interceptors/error.interceptor.ts"
+            _blank click ListErrors href
+            "https://github.com/jiteshy/angular-realworld-example-app/blob/main/src/app/shared/components/list-errors.component.ts"
+            _blank click MarkdownPipe href
+            "https://github.com/jiteshy/angular-realworld-example-app/blob/main/src/app/shared/pipes/markdown.pipe.ts"
+            _blank %% Color Coding classDef uiComponent
+            fill:#e1f5fe,stroke:#0277bd,stroke-width:2px classDef
+            featureComponent fill:#f3e5f5,stroke:#7b1fa2,stroke-width:2px
+            classDef service fill:#e8f5e8,stroke:#2e7d32,stroke-width:2px
+            classDef http fill:#fff3e0,stroke:#f57c00,stroke-width:2px classDef
+            external fill:#ffebee,stroke:#d32f2f,stroke-width:2px classDef
+            shared fill:#f1f8e9,stroke:#558b2f,stroke-width:2px classDef tech
+            fill:#e3f2fd,stroke:#1976d2,stroke-width:2px classDef warning
+            fill:#fff8e1,stroke:#ff8f00,stroke-width:3px class App,Header,Footer
+            uiComponent class
+            Home,ArticleDetail,Profile,Auth,Settings,ArticleList,ArticleMeta,ProfileArticles,ProfileFavorites
+            featureComponent class
+            UserService,ArticleService,ProfileService,JwtService,CommentsService,TagsService
+            service class
+            HttpClient,APIInterceptor,TokenInterceptor,ErrorInterceptor http
+            class RealWorldAPI,LocalStorage external class
+            ListErrors,MarkdownPipe,FavoriteButton,FollowButton shared class
+            Angular,TypeScript,RxJS,Bootstrap,Marked tech class Editor warning
+          </div>
         </div>
+      </div>
 
-        <div id="diagram">
-            <div class="diagram-container">
-                <div class="mermaid">
-flowchart TD
-    %% External API
-    API[("RealWorld API<br/>https://api.realworld.io/api")]:::external
-
-    %% App Shell
-    subgraph "Application Shell"
-        APP["App Component<br/>(Root)"]:::shell
-        CONFIG["App Configuration<br/>(Bootstrap)"]:::shell
-        ROUTES["Route Configuration<br/>(Navigation)"]:::shell
-    end
-
-    %% Core Infrastructure
-    subgraph "Core Infrastructure Layer"
-        subgraph "Authentication System"
-            AUTH_COMP["Auth Component<br/>(Login/Register)"]:::auth
-            USER_SVC["User Service<br/>(State Management)"]:::auth
-            JWT_SVC["JWT Service<br/>(Token Storage)"]:::auth
-            AUTH_DIR["Auth Directive<br/>(Conditional Display)"]:::auth
-        end
-
-        subgraph "HTTP Layer"
-            API_INT["API Interceptor<br/>(URL Prefixing)"]:::http
-            TOKEN_INT["Token Interceptor<br/>(JWT Injection)"]:::http
-            ERROR_INT["Error Interceptor<br/>(Error Handling)"]:::http
-        end
-
-        subgraph "Layout Components"
-            HEADER["Header Component<br/>(Navigation)"]:::layout
-            FOOTER["Footer Component<br/>(Site Footer)"]:::layout
-        end
-
-        MODELS["Core Models<br/>(TypeScript Interfaces)"]:::core
-    end
-
-    %% Feature Modules
-    subgraph "Feature Modules"
-        subgraph "Article Management"
-            HOME["Home Page<br/>(Article Feeds)"]:::feature
-            ARTICLE["Article Page<br/>(View/Edit)"]:::feature
-            EDITOR["Editor Page<br/>(Create/Update)"]:::feature
-            
-            subgraph "Article Services"
-                ART_SVC["Articles Service<br/>(CRUD Operations)"]:::service
-                COM_SVC["Comments Service<br/>(Comment CRUD)"]:::service
-                TAG_SVC["Tags Service<br/>(Tag Management)"]:::service
-            end
-
-            subgraph "Article Components"
-                ART_LIST["Article List<br/>(Pagination)"]:::component
-                ART_PREV["Article Preview<br/>(Card Display)"]:::component
-                ART_META["Article Meta<br/>(Author Info)"]:::component
-                FAV_BTN["Favorite Button<br/>(Social Action)"]:::component
-            end
-        end
-
-        subgraph "Profile Management"
-            PROFILE["Profile Page<br/>(User Info)"]:::feature
-            PROF_SVC["Profile Service<br/>(User Data)"]:::service
-            PROF_ART["Profile Articles<br/>(User Posts)"]:::component
-            PROF_FAV["Profile Favorites<br/>(Liked Posts)"]:::component
-            FOLLOW_BTN["Follow Button<br/>(Social Action)"]:::component
-        end
-
-        subgraph "Settings Management"
-            SETTINGS["Settings Page<br/>(User Config)"]:::feature
-        end
-    end
-
-    %% Shared Infrastructure
-    subgraph "Shared Infrastructure"
-        ERROR_COMP["Error List Component<br/>(Validation Display)"]:::shared
-        MARKDOWN["Markdown Pipe<br/>(Content Rendering)"]:::shared
-    end
-
-    %% Browser Storage
-    STORAGE[("Browser localStorage<br/>(JWT Token)")]:::storage
-
-    %% Connections - App Bootstrap
-    CONFIG --> APP
-    ROUTES --> APP
-    APP --> HEADER
-    APP --> FOOTER
-
-    %% Authentication Flow
-    AUTH_COMP --> USER_SVC
-    USER_SVC --> JWT_SVC
-    JWT_SVC --> STORAGE
-    USER_SVC --> AUTH_DIR
-
-    %% HTTP Flow
-    ART_SVC --> API_INT
-    COM_SVC --> API_INT
-    TAG_SVC --> API_INT
-    PROF_SVC --> API_INT
-    API_INT --> TOKEN_INT
-    TOKEN_INT --> ERROR_INT
-    ERROR_INT --> API
-    JWT_SVC --> TOKEN_INT
-
-    %% Feature Interactions
-    HOME --> ART_LIST
-    ART_LIST --> ART_PREV
-    ART_PREV --> FAV_BTN
-    ARTICLE --> ART_META
-    ARTICLE --> FAV_BTN
-    ARTICLE --> FOLLOW_BTN
-    EDITOR --> TAG_SVC
-
-    %% Service Connections
-    HOME --> ART_SVC
-    HOME --> TAG_SVC
-    ARTICLE --> ART_SVC
-    ARTICLE --> COM_SVC
-    EDITOR --> ART_SVC
-    PROFILE --> PROF_SVC
-    SETTINGS --> USER_SVC
-
-    %% Shared Component Usage
-    AUTH_COMP --> ERROR_COMP
-    EDITOR --> ERROR_COMP
-    SETTINGS --> ERROR_COMP
-    ARTICLE --> MARKDOWN
-
-    %% Profile Features
-    PROFILE --> PROF_ART
-    PROFILE --> PROF_FAV
-    PROFILE --> FOLLOW_BTN
-    PROF_ART --> ART_LIST
-    PROF_FAV --> ART_LIST
-
-    %% Click Events
-    click APP "src/app/app.component.ts"
-    click CONFIG "src/app/app.config.ts"
-    click ROUTES "src/app/app.routes.ts"
-    click AUTH_COMP "src/app/core/auth/auth.component.ts"
-    click USER_SVC "src/app/core/auth/services/user.service.ts"
-    click JWT_SVC "src/app/core/auth/services/jwt.service.ts"
-    click AUTH_DIR "src/app/core/auth/if-authenticated.directive.ts"
-    click API_INT "src/app/core/interceptors/api.interceptor.ts"
-    click TOKEN_INT "src/app/core/interceptors/token.interceptor.ts"
-    click ERROR_INT "src/app/core/interceptors/error.interceptor.ts"
-    click HEADER "src/app/core/layout/header.component.ts"
-    click FOOTER "src/app/core/layout/footer.component.ts"
-    click MODELS "src/app/core/models"
-    click HOME "src/app/features/article/pages/home/home.component.ts"
-    click ARTICLE "src/app/features/article/pages/article/article.component.ts"
-    click EDITOR "src/app/features/article/pages/editor/editor.component.ts"
-    click ART_SVC "src/app/features/article/services/articles.service.ts"
-    click COM_SVC "src/app/features/article/services/comments.service.ts"
-    click TAG_SVC "src/app/features/article/services/tags.service.ts"
-    click ART_LIST "src/app/features/article/components/article-list.component.ts"
-    click ART_PREV "src/app/features/article/components/article-preview.component.ts"
-    click FAV_BTN "src/app/features/article/components/favorite-button.component.ts"
-    click PROFILE "src/app/features/profile/pages/profile/profile.component.ts"
-    click PROF_SVC "src/app/features/profile/services/profile.service.ts"
-    click SETTINGS "src/app/features/settings/settings.component.ts"
-    click ERROR_COMP "src/app/shared/components/list-errors.component.ts"
-    click MARKDOWN "src/app/shared/pipes/markdown.pipe.ts"
-
-    %% Styles
-    classDef external fill:#ff6b6b,stroke:#d63031,stroke-width:3px,color:#fff
-    classDef shell fill:#4834d4,stroke:#3742fa,stroke-width:2px,color:#fff
-    classDef auth fill:#00b894,stroke:#00a085,stroke-width:2px,color:#fff
-    classDef http fill:#6c5ce7,stroke:#5f3dc4,stroke-width:2px,color:#fff
-    classDef layout fill:#fdcb6e,stroke:#e17055,stroke-width:2px,color:#333
-    classDef core fill:#74b9ff,stroke:#0984e3,stroke-width:2px,color:#fff
-    classDef feature fill:#a29bfe,stroke:#6c5ce7,stroke-width:2px,color:#fff
-    classDef service fill:#fd79a8,stroke:#e84393,stroke-width:2px,color:#fff
-    classDef component fill:#55a3ff,stroke:#2980b9,stroke-width:2px,color:#fff
-    classDef shared fill:#ffeaa7,stroke:#fdcb6e,stroke-width:2px,color:#333
-    classDef storage fill:#81ecec,stroke:#00cec9,stroke-width:2px,color:#333
-                </div>
-            </div>
+      <div class="legend">
+        <div class="legend-grid">
+          <div class="legend-item">
+            <div class="legend-color ui-color"></div>
+            <span>UI Components</span>
+          </div>
+          <div class="legend-item">
+            <div class="legend-color feature-color"></div>
+            <span>Feature Components</span>
+          </div>
+          <div class="legend-item">
+            <div class="legend-color service-color"></div>
+            <span>Services</span>
+          </div>
+          <div class="legend-item">
+            <div class="legend-color http-color"></div>
+            <span>HTTP Layer</span>
+          </div>
+          <div class="legend-item">
+            <div class="legend-color external-color"></div>
+            <span>External Services</span>
+          </div>
+          <div class="legend-item">
+            <div class="legend-color shared-color"></div>
+            <span>Shared Components</span>
+          </div>
+          <div class="legend-item">
+            <div class="legend-color tech-color"></div>
+            <span>Technology Stack</span>
+          </div>
+          <div class="legend-item">
+            <div class="legend-color warning-color"></div>
+            <span>⚠️ Issues Found</span>
+          </div>
         </div>
+      </div>
     </div>
 
     <script>
-        // Initialize Mermaid
-        mermaid.initialize({
-            startOnLoad: true,
-            theme: 'default',
-            flowchart: {
-                useMaxWidth: false,
-                htmlLabels: true
-            }
-        });
+      let zoomLevel = 0.25;
+      const minZoom = 0.15;
+      const maxZoom = 3;
+      const zoomStep = 0.25;
 
-        // Zoom functionality
-        let zoomLevel = 1;
-        const minZoom = 0.5;
-        const maxZoom = 3;
-        const zoomStep = 0.1;
+      function updateZoom() {
+        const container = document.querySelector(".diagram-container");
+        const indicator = document.getElementById("zoomIndicator");
 
-        function updateZoom() {
-            const container = document.querySelector('.diagram-container');
-            container.style.transform = `scale(${zoomLevel})`;
+        container.style.transform = `scale(${zoomLevel})`;
+        indicator.textContent = `${Math.round(zoomLevel * 100)}%`;
+      }
+
+      function zoomIn() {
+        if (zoomLevel < maxZoom) {
+          zoomLevel = Math.min(maxZoom, zoomLevel + zoomStep);
+          updateZoom();
+        }
+      }
+
+      function zoomOut() {
+        if (zoomLevel > minZoom) {
+          zoomLevel = Math.max(minZoom, zoomLevel - zoomStep);
+          updateZoom();
+        }
+      }
+
+      function resetZoom() {
+        zoomLevel = 0.25;
+        updateZoom();
+        setTimeout(centerDiagram, 100);
+      }
+
+      function centerDiagram() {
+        const diagramEl = document.getElementById("diagram");
+        diagramEl.scrollLeft =
+          (diagramEl.scrollWidth - diagramEl.clientWidth) / 2;
+        diagramEl.scrollTop =
+          (diagramEl.scrollHeight - diagramEl.clientHeight) / 2;
+      }
+
+      // Keyboard support
+      document.addEventListener("keydown", function (e) {
+        // Don't interfere if user is typing in an input
+        if (e.target.tagName === "INPUT" || e.target.tagName === "TEXTAREA") {
+          return;
         }
 
-        function zoomIn() {
-            if (zoomLevel < maxZoom) {
-                zoomLevel = Math.min(maxZoom, zoomLevel + zoomStep);
-                updateZoom();
-            }
+        if (e.key === "+" || e.key === "=") {
+          e.preventDefault();
+          zoomIn();
+        } else if (e.key === "-") {
+          e.preventDefault();
+          zoomOut();
+        } else if (e.key === "0") {
+          e.preventDefault();
+          resetZoom();
         }
+      });
 
-        function zoomOut() {
-            if (zoomLevel > minZoom) {
-                zoomLevel = Math.max(minZoom, zoomLevel - zoomStep);
-                updateZoom();
+      // Mouse wheel support with Ctrl/Cmd modifier
+      document
+        .getElementById("diagram")
+        .addEventListener("wheel", function (e) {
+          if (e.ctrlKey || e.metaKey) {
+            e.preventDefault();
+
+            if (e.deltaY < 0) {
+              zoomIn();
+            } else {
+              zoomOut();
             }
-        }
-
-        function resetZoom() {
-            zoomLevel = 1;
-            updateZoom();
-        }
-
-        // Keyboard support
-        document.addEventListener('keydown', function(e) {
-            // Prevent zooming when typing in input fields
-            if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') {
-                return;
-            }
-
-            switch(e.key) {
-                case '+':
-                case '=':
-                    e.preventDefault();
-                    zoomIn();
-                    break;
-                case '-':
-                    e.preventDefault();
-                    zoomOut();
-                    break;
-                case '0':
-                    e.preventDefault();
-                    resetZoom();
-                    break;
-            }
+          }
         });
 
-        // Mouse wheel support
-        document.getElementById('diagram').addEventListener('wheel', function(e) {
-            // Only zoom when Ctrl/Cmd key is pressed
-            if (e.ctrlKey || e.metaKey) {
-                e.preventDefault();
-                
-                if (e.deltaY < 0) {
-                    zoomIn();
-                } else {
-                    zoomOut();
-                }
-            }
-        });
+      // Initialize Mermaid with securityLevel loose for GitHub links
+      mermaid.initialize({
+        startOnLoad: true,
+        theme: "default",
+        flowchart: {
+          useMaxWidth: false,
+          htmlLabels: true,
+        },
+        securityLevel: "loose",
+      });
 
-        // Initialize zoom on page load
-        window.addEventListener('load', function() {
-            updateZoom();
-        });
+      // Initialize zoom and center diagram after page load
+      window.addEventListener("load", function () {
+        updateZoom();
+        setTimeout(centerDiagram, 500);
+      });
     </script>
-</body>
-</html> 
+  </body>
+</html>

@@ -1,268 +1,459 @@
 ---
-description: 
-globs: 
+description:
+globs:
 alwaysApply: false
 ---
-You can refer below step by step prompts to generate the system design/architecture diagram for the project. Once generated, add a runnable version of the diagram (using html and generated mermaid.js diagram) in the docs (create if not already existing) with the name - index.html.
 
-**IMPORTANT**: The HTML file must include zoom functionality to allow users to zoom in/out on the diagram for better visibility. See the HTML_ZOOM_REQUIREMENTS section below for specific implementation details.
+# Architecture Diagram Generation Prompt
 
-**Input**: The source code in current repo
-**Output**: A mermaid.js diagram and html to view it in browser
+You are a principal software engineer tasked with creating accurate system architecture diagrams based on validated project documentation and source code analysis. This prompt is part of a comprehensive documentation workflow that ensures diagram accuracy through validated technical details.
 
-SYSTEM_FIRST_PROMPT = """
-You are tasked with explaining to a principal software engineer how to draw the best and most accurate system design diagram / architecture of a given project. This explanation should be tailored to the specific project's purpose and structure. To accomplish this, you will be provided with two key pieces of information:
+**Input Sources** (in priority order):
 
-1. The complete and entire file tree of the project including all directory and file names, which will be enclosed in <file_tree> tags in the users message.
+1. **Generated Documentation**: `docs/PROJECT_DOCUMENTATION.md` (primary source - validated technical details)
+2. **Source Code Analysis**: Complete file tree and code structure
+3. **README File**: Supporting project information
 
-2. The README file of the project, which will be enclosed in <readme> tags in the users message.
+**Output**:
 
-Analyze these components carefully, as they will provide crucial information about the project's structure and purpose. Follow these steps to create an explanation for the principal software engineer:
+- Mermaid.js diagram code
+- Interactive HTML file: `docs/architecture_diagram.html` with zoom functionality
 
-1. Identify the project type and purpose:
-   - Examine the file structure and README to determine if the project is a full-stack application, an open-source tool, a compiler, or another type of software imaginable.
-   - Look for key indicators in the README, such as project description, features, or use cases.
+## Workflow Context
 
-2. Analyze the file structure:
-   - Pay attention to top-level directories and their names (e.g., "frontend", "backend", "src", "lib", "tests").
-   - Identify patterns in the directory structure that might indicate architectural choices (e.g., MVC pattern, microservices).
-   - Note any configuration files, build scripts, or deployment-related files.
+This diagram generation is **Phase 5** of the documentation workflow:
 
-3. Examine the README for additional insights:
-   - Look for sections describing the architecture, dependencies, or technical stack.
-   - Check for any diagrams or explanations of the system's components.
+1. ✅ Agent rules applied
+2. ✅ Documentation generated
+3. ✅ Documentation validated against source code
+4. ✅ Inaccuracies corrected
+5. **📊 Architecture diagram creation** (current phase)
 
-4. Based on your analysis, explain how to create a system design diagram that accurately represents the project's architecture. Include the following points:
+The generated documentation provides **validated, accurate** technical details that should be the foundation for the architecture diagram.
 
-   a. Identify the main components of the system (e.g., frontend, backend, database, building, external services).
-   b. Determine the relationships and interactions between these components.
-   c. Highlight any important architectural patterns or design principles used in the project.
-   d. Include relevant technologies, frameworks, or libraries that play a significant role in the system's architecture.
+## Primary Architecture Analysis
 
-5. Provide guidelines for tailoring the diagram to the specific project type:
-   - For a full-stack application, emphasize the separation between frontend and backend, database interactions, and any API layers.
-   - For an open-source tool, focus on the core functionality, extensibility points, and how it integrates with other systems.
-   - For a compiler or language-related project, highlight the different stages of compilation or interpretation, and any intermediate representations.
+**EXECUTE FIRST**: Analyze the validated project documentation
 
-6. Instruct the principal software engineer to include the following elements in the diagram:
-   - Clear labels for each component
-   - Directional arrows to show data flow or dependencies
-   - Color coding or shapes to distinguish between different types of components
+You will be provided with the generated `PROJECT_DOCUMENTATION.md` which contains validated technical architecture details. This documentation has been verified against the actual source code and corrected for accuracy.
 
-7. NOTE: Emphasize the importance of being very detailed and capturing the essential architectural elements. Don't overthink it too much, simply separating the project into as many components as possible is best.
+**Key sections to leverage**:
 
-Present your explanation and instructions within <explanation> tags, ensuring that you tailor your advice to the specific project based on the provided file tree and README content.
-"""
+- **3.1 Architecture Overview**: Technology stack, design patterns, data flow
+- **3.2 Development Environment**: Build process, deployment strategy
+- **3.3 Code Organization**: Directory structure, file naming, import patterns
+- **3.4 API Documentation**: External integrations, authentication flow
+- **3.5 Data Management**: State management, data models, storage
 
-# - A legend explaining any symbols or abbreviations used
-# ^ removed since it was making the diagrams very long
+**Analysis Instructions**:
 
-# just adding some clear separation between the prompts
-# ************************************************************
-# ************************************************************
+1. **Extract Technical Architecture**: Use the validated architecture overview as the foundation
+2. **Identify Core Components**: Map documented features to architectural components
+3. **Understand Data Flow**: Use documented data flow patterns
+4. **Map Technology Stack**: Include all validated technologies and frameworks
+5. **Incorporate Design Patterns**: Show documented architectural patterns
 
-SYSTEM_SECOND_PROMPT = """
-You are tasked with mapping key components of a system design to their corresponding files and directories in a project's file structure. You will be provided with a detailed explanation of the system design/architecture and a file tree of the project.
+## Secondary Source Code Analysis
 
-First, carefully read the system design explanation which will be enclosed in <explanation> tags in the users message.
+**EXECUTE SECOND**: GitHub Repository Detection and Source Code Analysis
 
-Then, examine the file tree of the project which will be enclosed in <file_tree> tags in the users message.
+### Step 1: GitHub Repository URL Detection
 
-Your task is to analyze the system design explanation and identify key components, modules, or services mentioned. Then, try your best to map these components to what you believe could be their corresponding directories and files in the provided file tree.
+**CRITICAL**: Before creating any click events, detect the GitHub repository URL from dependency files:
 
-Guidelines:
-1. Focus on major components described in the system design.
-2. Look for directories and files that clearly correspond to these components.
-3. Include both directories and specific files when relevant.
-4. If a component doesn't have a clear corresponding file or directory, simply dont include it in the map.
+**Check these files in order** (first found wins):
 
-Now, provide your final answer in the following format:
+1. **package.json**: Look for `repository.url` or `repository` field
+2. **pom.xml**: Look for `<scm><url>` or `<url>` in project section
+3. **Cargo.toml**: Look for `repository` field in `[package]` section
+4. **go.mod**: Look for module path if it's a GitHub URL
+5. **composer.json**: Look for `repository` field
+6. **pyproject.toml** or **setup.py**: Look for repository URLs
 
-<component_mapping>
-1. [Component Name]: [File/Directory Path]
-2. [Component Name]: [File/Directory Path]
-[Continue for all identified components]
-</component_mapping>
+**Example extraction patterns**:
 
-Remember to be as specific as possible in your mappings, only use what is given to you from the file tree, and to strictly follow the components mentioned in the explanation. 
-"""
-
-# ❌ BELOW IS A REMOVED SECTION FROM THE ABOVE PROMPT USED FOR CLAUDE 3.5 SONNET
-# Before providing your final answer, use the <scratchpad> to think through your process:
-# 1. List the key components identified in the system design.
-# 2. For each component, brainstorm potential corresponding directories or files.
-# 3. Verify your mappings by double-checking the file tree.
-
-# <scratchpad>
-# [Your thought process here]
-# </scratchpad>
-
-# just adding some clear separation between the prompts
-# ************************************************************
-# ************************************************************
-
-SYSTEM_THIRD_PROMPT = """
-You are a principal software engineer tasked with creating a system design diagram using Mermaid.js based on a detailed explanation. Your goal is to accurately represent the architecture and design of the project as described in the explanation.
-
-The detailed explanation of the design will be enclosed in <explanation> tags in the users message.
-
-Also, sourced from the explanation, as a bonus, a few of the identified components have been mapped to their paths in the project file tree, whether it is a directory or file which will be enclosed in <component_mapping> tags in the users message.
-
-To create the Mermaid.js diagram:
-
-1. Carefully read and analyze the provided design explanation.
-2. Identify the main components, services, and their relationships within the system.
-3. Determine the appropriate Mermaid.js diagram type to use (e.g., flowchart, sequence diagram, class diagram, architecture, etc.) based on the nature of the system described.
-4. Create the Mermaid.js code to represent the design, ensuring that:
-   a. All major components are included
-   b. Relationships between components are clearly shown
-   c. The diagram accurately reflects the architecture described in the explanation
-   d. The layout is logical and easy to understand
-
-Guidelines for diagram components and relationships:
-- Use appropriate shapes for different types of components (e.g., rectangles for services, cylinders for databases, etc.)
-- Use clear and concise labels for each component
-- Show the direction of data flow or dependencies using arrows
-- Group related components together if applicable
-- Include any important notes or annotations mentioned in the explanation
-- Just follow the explanation. It will have everything you need.
-
-IMPORTANT!!: Please orient and draw the diagram as vertically as possible. You must avoid long horizontal lists of nodes and sections!
-
-You must include click events for components of the diagram that have been specified in the provided <component_mapping>:
-- Do not try to include the full url. This will be processed by another program afterwards. All you need to do is include the path.
-- For example:
-  - This is a correct click event: `click Example "app/example.js"`
-  - This is an incorrect click event: `click Example "https://github.com/username/repo/blob/main/app/example.js"`
-- Do this for as many components as specified in the component mapping, include directories and files.
-  - If you believe the component contains files and is a directory, include the directory path.
-  - If you believe the component references a specific file, include the file path.
-- Make sure to include the full path to the directory or file exactly as specified in the component mapping.
-- It is very important that you do this for as many files as possible. The more the better.
-
-- IMPORTANT: THESE PATHS ARE FOR CLICK EVENTS ONLY, these paths should not be included in the diagram's node's names. Only for the click events. Paths should not be seen by the user.
-
-Your output should be valid Mermaid.js code that can be rendered into a diagram.
-
-Do not include an init declaration such as `%%{init: {'key':'etc'}}%%`. This is handled externally. Just return the diagram code.
-
-Your response must strictly be just the Mermaid.js code, without any additional text or explanations.
-No code fence or markdown ticks needed, simply return the Mermaid.js code.
-
-Ensure that your diagram adheres strictly to the given explanation, without adding or omitting any significant components or relationships. 
-
-For general direction, the provided example below is how you should structure your code:
-
-```mermaid
-flowchart TD 
-    %% or graph TD, your choice
-
-    %% Global entities
-    A("Entity A"):::external
-    %% more...
-
-    %% Subgraphs and modules
-    subgraph "Layer A"
-        A1("Module A"):::example
-        %% more modules...
-        %% inner subgraphs if needed...
-    end
-
-    %% more subgraphs, modules, etc...
-
-    %% Connections
-    A -->|"relationship"| B
-    %% and a lot more...
-
-    %% Click Events
-    click A1 "example/example.js"
-    %% and a lot more...
-
-    %% Styles
-    classDef frontend %%...
-    %% and a lot more...
+```json
+// package.json
+{
+  "repository": {
+    "url": "https://github.com/user/repo.git"
+  }
+  // OR
+  "repository": "https://github.com/user/repo"
+}
 ```
 
-EXTREMELY Important notes on syntax!!! (PAY ATTENTION TO THIS):
-- Make sure to add colour to the diagram!!! This is extremely critical.
-- In Mermaid.js syntax, we cannot include special characters for nodes without being inside quotes! For example: `EX[/api/process (Backend)]:::api` and `API -->|calls Process()| Backend` are two examples of syntax errors. They should be `EX["/api/process (Backend)"]:::api` and `API -->|"calls Process()"| Backend` respectively. Notice the quotes. This is extremely important. Make sure to include quotes for any string that contains special characters.
-- In Mermaid.js syntax, you cannot apply a class style directly within a subgraph declaration. For example: `subgraph "Frontend Layer":::frontend` is a syntax error. However, you can apply them to nodes within the subgraph. For example: `Example["Example Node"]:::frontend` is valid, and `class Example1,Example2 frontend` is valid.
-- In Mermaid.js syntax, there cannot be spaces in the relationship label names. For example: `A -->| "example relationship" | B` is a syntax error. It should be `A -->|"example relationship"| B` 
-- In Mermaid.js syntax, you cannot give subgraphs an alias like nodes. For example: `subgraph A "Layer A"` is a syntax error. It should be `subgraph "Layer A"` 
-"""
+**URL Processing**:
+
+- Remove `.git` suffix if present
+- Ensure format: `https://github.com/owner/repo`
+- Extract owner and repo name for click events
+
+### Step 2: Source Code Analysis
+
+Examine the source code to:
+
+- **Verify Component Structure**: Confirm documented architecture in actual files
+- **Map File Paths**: Create clickable links using detected GitHub URL
+- **Identify Visual Groupings**: Organize components by documented folder structure
+- **Validate Relationships**: Ensure documented data flow matches code patterns
+
+## Diagram Creation Instructions
+
+### Step 1: Architecture Foundation
+
+Based on the **validated documentation**, identify:
+
+- **Main System Layers**: Frontend, backend, external services (as documented)
+- **Core Components**: Authentication, API integration, state management, UI components
+- **Technology Stack**: All frameworks and libraries from validated documentation
+- **Data Flow Patterns**: How data moves through the documented architecture
+
+### Step 2: Component Mapping
+
+Map documented architecture to actual code files:
+
+- **Services**: Map to actual service files in the codebase
+- **Components**: Map to actual component files
+- **Features**: Map to feature directories and modules
+- **Configuration**: Map to config files and interceptors
+
+### Step 3: Click Event Generation Strategy
+
+**IF GitHub URL detected**:
+
+- Create click events using: `click Component href "{GitHubURL}/blob/main/{filepath}" _blank`
+- Use detected repository URL for all component links
+- Include all major components (services, components, interceptors, etc.)
+
+**IF NO GitHub URL found**:
+
+- **DO NOT** create any click events in the Mermaid diagram
+- Add error banner to HTML (see HTML requirements below)
+- Document which dependency files were checked and found empty
+
+### Step 4: Visual Design
+
+Create a Mermaid.js flowchart that:
+
+- **Represents Validated Architecture**: Follows documented technical patterns
+- **Shows Accurate Data Flow**: Based on documented component interactions
+- **Groups Related Components**: Using documented folder structure
+- **Includes Technology Labels**: All validated frameworks and libraries
+- **Provides Clickable Navigation**: Links to GitHub files (if URL detected) or shows error banner
+
+## Mermaid.js Implementation Instructions
+
+Using the **validated documentation** as your primary source, create a Mermaid.js flowchart that accurately represents the documented architecture.
+
+**Primary Input**: `docs/PROJECT_DOCUMENTATION.md` - Use this as the foundation for all architectural decisions
+**Secondary Input**: Source code file structure for component mapping and click events
+
+**Diagram Requirements**:
+
+### Technical Accuracy
+
+- **Follow Documented Patterns**: Diagram must match validated architecture details
+- **Use Correct Technology Names**: Only technologies confirmed in documentation
+- **Show Actual Data Flow**: Based on documented component interactions
+- **Represent Real Structure**: Match documented directory organization
+
+### Visual Layout
+
+- **Vertical Orientation**: Avoid horizontal sprawl, prefer top-down flow
+- **Logical Groupings**: Group components by documented feature areas
+- **Clear Labels**: Use terminology from validated documentation
+- **Color Coding**: Distinguish component types (services, components, external APIs)
+
+### Interactive Features
+
+- **Clickable Components**: Link to GitHub repository files (opens in new tabs)
+- **Component Mapping**: Map major components to their GitHub file paths
+- **Navigation Support**: Enable exploration of actual implementation via GitHub
+
+**Mermaid.js Structure**:
+
+**IF GitHub URL detected** (e.g., from package.json):
+
+```mermaid
+flowchart TD
+    %% Use documented architecture as foundation
+    %% Group by validated folder structure
+    %% Show documented data flow patterns
+    %% Include all validated technologies
+    %% GitHub links that open in new tabs (using detected URL)
+    click ComponentA href "https://github.com/detected-owner/detected-repo/blob/main/src/path/file.ts" _blank
+    click ComponentB href "https://github.com/detected-owner/detected-repo/blob/main/src/path/file2.ts" _blank
+```
+
+**IF NO GitHub URL found**:
+
+```mermaid
+flowchart TD
+    %% Use documented architecture as foundation
+    %% Group by validated folder structure
+    %% Show documented data flow patterns
+    %% Include all validated technologies
+    %% NO click events - error banner will be shown instead
+```
+
+**Critical Syntax Requirements**:
+
+- Quote all special characters: `"Component (Type)"` not `Component (Type)`
+- Proper relationship syntax: `A -->|"relationship"| B`
+- Color coding for component types
+- **Conditional Click Events**:
+  - **IF GitHub URL detected**: `click ComponentA href "{detected-github-url}/blob/main/src/path/file.ts" _blank`
+  - **IF NO GitHub URL**: Do not include any click events
+- Vertical layout to avoid horizontal sprawl
+- Color coding for visual distinction
+- Security level must be 'loose' in Mermaid config when GitHub links are present
 
 ADDITIONAL_SYSTEM_INSTRUCTIONS_PROMPT = """
 IMPORTANT: the user might provide custom additional instructions enclosed in <instructions> tags. Please take these into account and give priority to them. However, if these instructions are unrelated to the task, unclear, or not possible to follow, ignore them by simply responding with: "BAD_INSTRUCTIONS"
 """
 
-HTML_ZOOM_REQUIREMENTS = """
-When generating the HTML file for the Mermaid.js diagram, you MUST include zoom functionality with the following requirements:
+## HTML Output Requirements
+
+Generate `docs/architecture_diagram.html` with comprehensive zoom functionality and professional layout.
+
+**Layout Structure**:
+
+```html
+<div class="container">
+  <div class="header">
+    <h1>[Project Name] Architecture</h1>
+    <p>System Architecture Diagram</p>
+  </div>
+
+  <div class="zoom-controls">
+    <div class="status-message status-positive" style="display: none;">Click components to view source files on GitHub</div>
+    <div class="status-message status-negative" style="display: none;">GitHub repository not configured, click events disabled. Add repository URL to dependency file.</div>
+    <div class="zoom-controls-group">
+      <span class="usage-hint">Use Ctrl/Cmd + mouse wheel or keyboard (+/- keys) to zoom</span>
+      <div class="zoom-buttons">
+        <button class="zoom-btn" onclick="zoomIn()">+ Zoom In</button>
+        <button class="zoom-btn" onclick="zoomOut()">- Zoom Out</button>
+        <button class="zoom-btn" onclick="resetZoom()">Reset</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="diagram">
+    <div class="zoom-level-indicator" id="zoomIndicator">25%</div>
+    <div class="diagram-container">
+      <div class="mermaid">[Diagram Code]</div>
+    </div>
+  </div>
+
+  <div class="legend">
+    <div class="legend-grid">[6-column legend based on component types]</div>
+  </div>
+</div>
+```
+
+**Zoom Functionality Requirements**:
 
 1. CSS Requirements:
-   - Add zoom controls styling as a right-aligned horizontal bar above the diagram
-   - Add diagram-container class with transform-origin and transition properties
-   - Style zoom controls with light background, border, and proper spacing
-   - Use flex-end justification to align controls to the right
-   - Add zoom-controls-group container for text and buttons grouping
-   - Add zoom-buttons container for button grouping with 10px gap
-   - Ensure diagram container has overflow: auto and position: relative
+
+   - Full viewport layout: body and container set to 100vw x 100vh with overflow: hidden
+   - Vertical flexbox layout: header -> zoom-controls -> diagram -> legend
+   - Zoom controls with space-between layout: status message on left, controls on right
+   - Status message styling: positive text in black (#000), negative text in red (#dc3545)
+   - Diagram container uses inline-block display with bidirectional scrolling support
+   - Transform-origin: center center for proper scaling
+   - Very compact legend with 6 equal-width columns and max-height 100px
 
 2. HTML Structure Requirements:
-   - Place zoom controls ABOVE the diagram container (not inside it)
-   - Group usage text and buttons together on the right side
-   - Wrap the mermaid diagram div inside a 'diagram-container' div
-   - Include usage instructions text positioned left of the buttons
+
+   - Simple vertical container with flex-direction: column
+   - Header: Compact gradient with title and static subtitle: "System Architecture Diagram"
+   - Zoom controls: Space-between layout with conditional status message on left side:
+     - **IF GitHub URL found**: Show positive message in black
+     - **IF NO GitHub URL**: Show negative message in red
+   - Diagram: Takes remaining space (flex: 1) with overflow: auto for scrolling
+   - Legend: No title/header, direct 6-column grid layout
    - Example structure:
      ```html
-     <div class="zoom-controls">
+     <div class="container">
+       <div class="header">
+         <h1>Project Name</h1>
+         <p>System Architecture Diagram</p>
+       </div>
+
+       <div class="zoom-controls">
+         <!-- Show one of these based on GitHub URL detection -->
+         <div class="status-message status-positive">Click components to view source files on GitHub</div>
+         <!-- OR -->
+         <div class="status-message status-negative">GitHub repository not configured, click events disabled. Add repository URL to dependency file.</div>
          <div class="zoom-controls-group">
-             <span style="color: #666; font-size: 12px;">
-                 Use Ctrl/Cmd + mouse wheel or keyboard (+/- keys) to zoom
-             </span>
-             <div class="zoom-buttons">
-                 <button class="zoom-btn" onclick="zoomIn()">+ Zoom In</button>
-                 <button class="zoom-btn" onclick="zoomOut()">- Zoom Out</button>
-                 <button class="zoom-btn" onclick="resetZoom()">Reset</button>
-             </div>
+           <span class="usage-hint">Use Ctrl/Cmd + mouse wheel or keyboard (+/- keys) to zoom</span>
+           <div class="zoom-buttons">
+             <button class="zoom-btn" onclick="zoomIn()">+ Zoom In</button>
+             <button class="zoom-btn" onclick="zoomOut()">- Zoom Out</button>
+             <button class="zoom-btn" onclick="resetZoom()">Reset</button>
+           </div>
          </div>
-     </div>
-     
-     <div id="diagram">
+       </div>
+
+       <div id="diagram">
+         <div class="zoom-level-indicator" id="zoomIndicator">25%</div>
          <div class="diagram-container">
-             <div class="mermaid">
-                 [Mermaid diagram code here]
-             </div>
+           <div class="mermaid">[Mermaid diagram code here]</div>
          </div>
+       </div>
+
+       <div class="legend">
+         <div class="legend-grid">[Legend items - 6 columns]</div>
+       </div>
      </div>
      ```
 
 3. JavaScript Requirements:
+
    - Implement zoomIn(), zoomOut(), and resetZoom() functions
-   - Use a zoomLevel variable (default: 1, min: 0.5, max: 3)
-   - Apply zoom using CSS transform scale on the diagram-container
-   - Include smooth transitions for zoom changes
+   - Use zoomLevel variable (default: 0.25, min: 0.15, max: 3)
+   - Apply zoom using CSS transform scale on diagram-container
+   - Include centerDiagram() function for initial and reset positioning
    - Add keyboard support: +/= for zoom in, - for zoom out, 0 for reset
-   - Add mouse wheel support: Ctrl/Cmd + scroll up to zoom in, Ctrl/Cmd + scroll down to zoom out
+   - Add mouse wheel support: Ctrl/Cmd + scroll for zooming
    - Prevent zooming when typing in input fields
-   - Initialize zoom functionality on page load
+   - Initialize zoom and centering on page load
+   - **Conditional Mermaid configuration**:
+
+     - **IF GitHub links present**: Include `securityLevel: 'loose'`
+     - **IF NO GitHub links**: Standard security level is fine
+
+     ```javascript
+     // When GitHub links are present
+     mermaid.initialize({
+       startOnLoad: true,
+       theme: "default",
+       flowchart: { useMaxWidth: false, htmlLabels: true },
+       securityLevel: "loose",
+     });
+
+     // When no GitHub links
+     mermaid.initialize({
+       startOnLoad: true,
+       theme: "default",
+       flowchart: { useMaxWidth: false, htmlLabels: true },
+     });
+     ```
+
+   - **Status message management**:
+     - Show appropriate status message based on GitHub URL detection
+     - Use conditional display (show positive OR negative, never both)
 
 4. Styling Requirements:
-   - Blue zoom buttons with hover effects and descriptive labels
-   - Right-aligned horizontal control bar above diagram with light background
-   - Grouped text and buttons with proper spacing (15px gap between text and buttons)
-   - Smooth scaling transitions
-   - Proper button spacing and visual feedback
-   - Include usage hint text for keyboard and Ctrl/Cmd + mouse wheel controls
+
+   - Compact header: 12px padding, 1.4em title, 0.9em subtitle
+   - Zoom controls: 8px padding, space-between layout, 12px gap for right group
+   - Status message: 12px font-size, 500 font-weight, conditional colors (black/red)
+   - Zoom level indicator: Absolute positioned top-left in diagram area
+   - Legend: 10px padding, 6px gaps, 12x12px color swatches, 11px text
+   - Smooth transitions for all zoom interactions
+   - Professional gradient header and consistent styling
 
 5. Interaction Features:
-   - Mouse wheel zooming over the diagram area (only with Ctrl/Cmd modifier key)
+
+   - Mouse wheel zooming over diagram area (only with Ctrl/Cmd modifier)
    - Normal scrolling behavior when no modifier key is pressed
    - Keyboard shortcuts (+ - 0 keys) for zoom control
-   - Prevent default browser zoom behavior only when modifier key is used
    - Visual feedback for all zoom interactions
+   - Reset button centers diagram as well as resets zoom
 
-This comprehensive zoom functionality is essential for making large architecture diagrams viewable and interactive with multiple input methods.
-"""
+6. Legend Requirements:
+
+   - NO title or header - start directly with legend-grid
+   - Exactly 6 equal-width columns per row (repeat(6, 1fr))
+   - Very compact items: 4px padding, 6px gaps, 3px border-radius
+   - Small color swatches: 12x12px with 2px border-radius
+   - Small text: 11px font-size for labels
+   - Max-height 100px with overflow-y auto if needed
+
+7. Layout and Sizing Requirements:
+
+   - Set initial zoom to 0.25 so the entire diagram fits completely within the viewport
+   - Use transform-origin: center center for proper scaling
+   - Simple vertical layout: header -> zoom controls -> diagram -> legend (bottom)
+   - Full viewport layout (100vw x 100vh) optimized for desktop/laptop screens
+   - Compact header (1.4em/0.9em fonts) and zoom controls (8px padding) to maximize diagram space
+   - Legend with no header, 6 equal-width columns, max-height 100px, very compact styling
+   - Diagram section takes remaining vertical space with flex: 1
+   - Initial scroll position centered both horizontally and vertically using centerDiagram()
+   - Bidirectional scrolling support using inline-block container and margin: 0 auto for mermaid
+   - Zoom controls right-aligned with usage hint and compact buttons
+   - Ensure minimum zoom level is 0.15 to allow very small overview for complete diagram visibility
+
+8. Centering Functionality:
+
+   - centerDiagram() function calculates scroll center: (scrollWidth - clientWidth) / 2
+   - Called on page load (500ms delay) and reset button click
+   - Sets both scrollLeft and scrollTop to center the diagram view
+   - Ensures optimal initial viewing experience regardless of diagram size
+
+9. Status Message CSS Requirements:
+
+   ```css
+   .zoom-controls {
+     display: flex;
+     justify-content: space-between;
+     align-items: center;
+     background: #f8f9fa;
+     padding: 8px 20px;
+     border-bottom: 1px solid #dee2e6;
+     flex-shrink: 0;
+   }
+
+   .status-message {
+     font-size: 12px;
+     font-weight: 500;
+   }
+
+   .status-positive {
+     color: #000;
+   }
+
+   .status-negative {
+     color: #dc3545;
+   }
+   ```
+
+This comprehensive zoom functionality and layout provides maximum diagram visibility, professional appearance, and optimal user experience for architecture diagrams.
+
+## Quality Validation
+
+Before finalizing the diagram:
+
+- [ ] **Documentation Alignment**: Diagram accurately represents validated architecture
+- [ ] **Technical Accuracy**: All components exist in documented form
+- [ ] **GitHub URL Detection**: Checked package.json, pom.xml, and other dependency files for repository URL
+- [ ] **Conditional Click Events**:
+  - **IF GitHub URL found**: All click events use `href _blank` syntax with detected repository URL
+  - **IF NO GitHub URL**: No click events in diagram, error banner displayed
+- [ ] **Status Message Implementation**:
+  - Shows appropriate message based on GitHub URL detection
+  - Positive message in black when GitHub URL found
+  - Negative message in red when no GitHub URL found
+  - Located in zoom controls area on the left side
+- [ ] **Header Text**: Static subtitle "System Architecture Diagram"
+- [ ] **Visual Clarity**: Logical grouping and clear data flow
+- [ ] **Technology Accuracy**: Only documented technologies included
+- [ ] **Interactive Functionality**: All zoom and navigation features work
+- [ ] **Professional Presentation**: Clean layout with proper legend
+- [ ] **Mermaid Configuration**: Conditional `securityLevel: 'loose'` when GitHub links present
+
+## Integration with Documentation Workflow
+
+This diagram generation:
+
+- **Builds on Validated Documentation**: Uses corrected, accurate technical details
+- **Provides Visual Representation**: Of the documented architecture
+- **Enables Code Exploration**: Through clickable GitHub file navigation (new tabs)
+- **Completes Documentation**: Final component of comprehensive documentation system
+
+The result should be a **technically accurate, visually clear, and interactive** architecture diagram that perfectly represents the validated project documentation and enables efficient code exploration through GitHub integration.
 
 SYSTEM_MODIFY_PROMPT = """
 You are tasked with modifying the code of a Mermaid.js diagram based on the provided instructions. The diagram will be enclosed in <diagram> tags in the users message.
