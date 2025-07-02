@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Angular RealWorld - Architecture Diagram</title>
+    <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+    <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: #f8f9fa;
+        }
+
+        .container {
+            max-width: 100%;
+            margin: 0 auto;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .header h1 {
+            margin: 0;
+            font-size: 2em;
+            font-weight: 300;
+        }
+
+        .header p {
+            margin: 10px 0 0 0;
+            opacity: 0.9;
+            font-size: 1.1em;
+        }
+
+        .zoom-controls {
+            background: #f1f3f4;
+            padding: 15px 20px;
+            border-bottom: 1px solid #e1e5e9;
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+        }
+
+        .zoom-controls-group {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .zoom-buttons {
+            display: flex;
+            gap: 10px;
+        }
+
+        .zoom-btn {
+            background: #007bff;
+            border: none;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.2s ease;
+        }
+
+        .zoom-btn:hover {
+            background: #0056b3;
+            transform: translateY(-1px);
+            box-shadow: 0 2px 8px rgba(0, 123, 255, 0.3);
+        }
+
+        .zoom-btn:active {
+            transform: translateY(0);
+        }
+
+        #diagram {
+            overflow: auto;
+            position: relative;
+            height: calc(100vh - 200px);
+            min-height: 600px;
+        }
+
+        .diagram-container {
+            transform-origin: top left;
+            transition: transform 0.3s ease;
+            min-width: 100%;
+            min-height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            padding: 20px;
+        }
+
+        .mermaid {
+            max-width: none !important;
+        }
+
+        .usage-hint {
+            color: #666;
+            font-size: 12px;
+            line-height: 1.4;
+        }
+
+        .info-panel {
+            background: #e3f2fd;
+            border-left: 4px solid #2196F3;
+            padding: 15px 20px;
+            margin: 0;
+            border-bottom: 1px solid #e1e5e9;
+        }
+
+        .info-panel h3 {
+            margin: 0 0 10px 0;
+            color: #1976D2;
+            font-size: 1.1em;
+        }
+
+        .info-panel p {
+            margin: 5px 0;
+            color: #424242;
+            font-size: 14px;
+        }
+
+        .info-panel ul {
+            margin: 10px 0;
+            padding-left: 20px;
+            color: #424242;
+            font-size: 14px;
+        }
+
+        .info-panel li {
+            margin: 3px 0;
+        }
+
+        /* Responsive design */
+        @media (max-width: 768px) {
+            .zoom-controls-group {
+                flex-direction: column;
+                gap: 10px;
+                align-items: flex-end;
+            }
+            
+            .usage-hint {
+                text-align: right;
+                font-size: 11px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Angular RealWorld Example App</h1>
+            <p>System Architecture Diagram</p>
+        </div>
+
+        <div class="info-panel">
+            <h3>🏗️ Architecture Overview</h3>
+            <p>This diagram shows the complete system architecture of the Angular RealWorld application, including all major components, services, and their relationships.</p>
+            <ul>
+                <li><strong>Click on components</strong> to view the corresponding source files</li>
+                <li><strong>Color-coded layers</strong> represent different architectural concerns</li>
+                <li><strong>Arrows show</strong> data flow and dependencies between components</li>
+                <li><strong>External API integration</strong> with the RealWorld backend service</li>
+            </ul>
+        </div>
+
+        <div class="zoom-controls">
+            <div class="zoom-controls-group">
+                <span class="usage-hint">
+                    Use Ctrl/Cmd + mouse wheel or keyboard (+/- keys) to zoom
+                </span>
+                <div class="zoom-buttons">
+                    <button class="zoom-btn" onclick="zoomIn()">+ Zoom In</button>
+                    <button class="zoom-btn" onclick="zoomOut()">- Zoom Out</button>
+                    <button class="zoom-btn" onclick="resetZoom()">Reset</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="diagram">
+            <div class="diagram-container">
+                <div class="mermaid">
+flowchart TD
+    %% External API
+    API[("RealWorld API<br/>https://api.realworld.io/api")]:::external
+
+    %% App Shell
+    subgraph "Application Shell"
+        APP["App Component<br/>(Root)"]:::shell
+        CONFIG["App Configuration<br/>(Bootstrap)"]:::shell
+        ROUTES["Route Configuration<br/>(Navigation)"]:::shell
+    end
+
+    %% Core Infrastructure
+    subgraph "Core Infrastructure Layer"
+        subgraph "Authentication System"
+            AUTH_COMP["Auth Component<br/>(Login/Register)"]:::auth
+            USER_SVC["User Service<br/>(State Management)"]:::auth
+            JWT_SVC["JWT Service<br/>(Token Storage)"]:::auth
+            AUTH_DIR["Auth Directive<br/>(Conditional Display)"]:::auth
+        end
+
+        subgraph "HTTP Layer"
+            API_INT["API Interceptor<br/>(URL Prefixing)"]:::http
+            TOKEN_INT["Token Interceptor<br/>(JWT Injection)"]:::http
+            ERROR_INT["Error Interceptor<br/>(Error Handling)"]:::http
+        end
+
+        subgraph "Layout Components"
+            HEADER["Header Component<br/>(Navigation)"]:::layout
+            FOOTER["Footer Component<br/>(Site Footer)"]:::layout
+        end
+
+        MODELS["Core Models<br/>(TypeScript Interfaces)"]:::core
+    end
+
+    %% Feature Modules
+    subgraph "Feature Modules"
+        subgraph "Article Management"
+            HOME["Home Page<br/>(Article Feeds)"]:::feature
+            ARTICLE["Article Page<br/>(View/Edit)"]:::feature
+            EDITOR["Editor Page<br/>(Create/Update)"]:::feature
+            
+            subgraph "Article Services"
+                ART_SVC["Articles Service<br/>(CRUD Operations)"]:::service
+                COM_SVC["Comments Service<br/>(Comment CRUD)"]:::service
+                TAG_SVC["Tags Service<br/>(Tag Management)"]:::service
+            end
+
+            subgraph "Article Components"
+                ART_LIST["Article List<br/>(Pagination)"]:::component
+                ART_PREV["Article Preview<br/>(Card Display)"]:::component
+                ART_META["Article Meta<br/>(Author Info)"]:::component
+                FAV_BTN["Favorite Button<br/>(Social Action)"]:::component
+            end
+        end
+
+        subgraph "Profile Management"
+            PROFILE["Profile Page<br/>(User Info)"]:::feature
+            PROF_SVC["Profile Service<br/>(User Data)"]:::service
+            PROF_ART["Profile Articles<br/>(User Posts)"]:::component
+            PROF_FAV["Profile Favorites<br/>(Liked Posts)"]:::component
+            FOLLOW_BTN["Follow Button<br/>(Social Action)"]:::component
+        end
+
+        subgraph "Settings Management"
+            SETTINGS["Settings Page<br/>(User Config)"]:::feature
+        end
+    end
+
+    %% Shared Infrastructure
+    subgraph "Shared Infrastructure"
+        ERROR_COMP["Error List Component<br/>(Validation Display)"]:::shared
+        MARKDOWN["Markdown Pipe<br/>(Content Rendering)"]:::shared
+    end
+
+    %% Browser Storage
+    STORAGE[("Browser localStorage<br/>(JWT Token)")]:::storage
+
+    %% Connections - App Bootstrap
+    CONFIG --> APP
+    ROUTES --> APP
+    APP --> HEADER
+    APP --> FOOTER
+
+    %% Authentication Flow
+    AUTH_COMP --> USER_SVC
+    USER_SVC --> JWT_SVC
+    JWT_SVC --> STORAGE
+    USER_SVC --> AUTH_DIR
+
+    %% HTTP Flow
+    ART_SVC --> API_INT
+    COM_SVC --> API_INT
+    TAG_SVC --> API_INT
+    PROF_SVC --> API_INT
+    API_INT --> TOKEN_INT
+    TOKEN_INT --> ERROR_INT
+    ERROR_INT --> API
+    JWT_SVC --> TOKEN_INT
+
+    %% Feature Interactions
+    HOME --> ART_LIST
+    ART_LIST --> ART_PREV
+    ART_PREV --> FAV_BTN
+    ARTICLE --> ART_META
+    ARTICLE --> FAV_BTN
+    ARTICLE --> FOLLOW_BTN
+    EDITOR --> TAG_SVC
+
+    %% Service Connections
+    HOME --> ART_SVC
+    HOME --> TAG_SVC
+    ARTICLE --> ART_SVC
+    ARTICLE --> COM_SVC
+    EDITOR --> ART_SVC
+    PROFILE --> PROF_SVC
+    SETTINGS --> USER_SVC
+
+    %% Shared Component Usage
+    AUTH_COMP --> ERROR_COMP
+    EDITOR --> ERROR_COMP
+    SETTINGS --> ERROR_COMP
+    ARTICLE --> MARKDOWN
+
+    %% Profile Features
+    PROFILE --> PROF_ART
+    PROFILE --> PROF_FAV
+    PROFILE --> FOLLOW_BTN
+    PROF_ART --> ART_LIST
+    PROF_FAV --> ART_LIST
+
+    %% Click Events
+    click APP "src/app/app.component.ts"
+    click CONFIG "src/app/app.config.ts"
+    click ROUTES "src/app/app.routes.ts"
+    click AUTH_COMP "src/app/core/auth/auth.component.ts"
+    click USER_SVC "src/app/core/auth/services/user.service.ts"
+    click JWT_SVC "src/app/core/auth/services/jwt.service.ts"
+    click AUTH_DIR "src/app/core/auth/if-authenticated.directive.ts"
+    click API_INT "src/app/core/interceptors/api.interceptor.ts"
+    click TOKEN_INT "src/app/core/interceptors/token.interceptor.ts"
+    click ERROR_INT "src/app/core/interceptors/error.interceptor.ts"
+    click HEADER "src/app/core/layout/header.component.ts"
+    click FOOTER "src/app/core/layout/footer.component.ts"
+    click MODELS "src/app/core/models"
+    click HOME "src/app/features/article/pages/home/home.component.ts"
+    click ARTICLE "src/app/features/article/pages/article/article.component.ts"
+    click EDITOR "src/app/features/article/pages/editor/editor.component.ts"
+    click ART_SVC "src/app/features/article/services/articles.service.ts"
+    click COM_SVC "src/app/features/article/services/comments.service.ts"
+    click TAG_SVC "src/app/features/article/services/tags.service.ts"
+    click ART_LIST "src/app/features/article/components/article-list.component.ts"
+    click ART_PREV "src/app/features/article/components/article-preview.component.ts"
+    click FAV_BTN "src/app/features/article/components/favorite-button.component.ts"
+    click PROFILE "src/app/features/profile/pages/profile/profile.component.ts"
+    click PROF_SVC "src/app/features/profile/services/profile.service.ts"
+    click SETTINGS "src/app/features/settings/settings.component.ts"
+    click ERROR_COMP "src/app/shared/components/list-errors.component.ts"
+    click MARKDOWN "src/app/shared/pipes/markdown.pipe.ts"
+
+    %% Styles
+    classDef external fill:#ff6b6b,stroke:#d63031,stroke-width:3px,color:#fff
+    classDef shell fill:#4834d4,stroke:#3742fa,stroke-width:2px,color:#fff
+    classDef auth fill:#00b894,stroke:#00a085,stroke-width:2px,color:#fff
+    classDef http fill:#6c5ce7,stroke:#5f3dc4,stroke-width:2px,color:#fff
+    classDef layout fill:#fdcb6e,stroke:#e17055,stroke-width:2px,color:#333
+    classDef core fill:#74b9ff,stroke:#0984e3,stroke-width:2px,color:#fff
+    classDef feature fill:#a29bfe,stroke:#6c5ce7,stroke-width:2px,color:#fff
+    classDef service fill:#fd79a8,stroke:#e84393,stroke-width:2px,color:#fff
+    classDef component fill:#55a3ff,stroke:#2980b9,stroke-width:2px,color:#fff
+    classDef shared fill:#ffeaa7,stroke:#fdcb6e,stroke-width:2px,color:#333
+    classDef storage fill:#81ecec,stroke:#00cec9,stroke-width:2px,color:#333
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Initialize Mermaid
+        mermaid.initialize({
+            startOnLoad: true,
+            theme: 'default',
+            flowchart: {
+                useMaxWidth: false,
+                htmlLabels: true
+            }
+        });
+
+        // Zoom functionality
+        let zoomLevel = 1;
+        const minZoom = 0.5;
+        const maxZoom = 3;
+        const zoomStep = 0.1;
+
+        function updateZoom() {
+            const container = document.querySelector('.diagram-container');
+            container.style.transform = `scale(${zoomLevel})`;
+        }
+
+        function zoomIn() {
+            if (zoomLevel < maxZoom) {
+                zoomLevel = Math.min(maxZoom, zoomLevel + zoomStep);
+                updateZoom();
+            }
+        }
+
+        function zoomOut() {
+            if (zoomLevel > minZoom) {
+                zoomLevel = Math.max(minZoom, zoomLevel - zoomStep);
+                updateZoom();
+            }
+        }
+
+        function resetZoom() {
+            zoomLevel = 1;
+            updateZoom();
+        }
+
+        // Keyboard support
+        document.addEventListener('keydown', function(e) {
+            // Prevent zooming when typing in input fields
+            if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') {
+                return;
+            }
+
+            switch(e.key) {
+                case '+':
+                case '=':
+                    e.preventDefault();
+                    zoomIn();
+                    break;
+                case '-':
+                    e.preventDefault();
+                    zoomOut();
+                    break;
+                case '0':
+                    e.preventDefault();
+                    resetZoom();
+                    break;
+            }
+        });
+
+        // Mouse wheel support
+        document.getElementById('diagram').addEventListener('wheel', function(e) {
+            // Only zoom when Ctrl/Cmd key is pressed
+            if (e.ctrlKey || e.metaKey) {
+                e.preventDefault();
+                
+                if (e.deltaY < 0) {
+                    zoomIn();
+                } else {
+                    zoomOut();
+                }
+            }
+        });
+
+        // Initialize zoom on page load
+        window.addEventListener('load', function() {
+            updateZoom();
+        });
+    </script>
+</body>
+</html> 
