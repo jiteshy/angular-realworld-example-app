@@ -2,115 +2,96 @@
 
 ## 1. Project Overview
 
-**Purpose**: A social blogging platform (Medium.com clone) called "Conduit" built with Angular that demonstrates real-world application patterns.
+**Purpose**: A social blogging platform (Medium.com clone) called "Conduit" that allows users to create, read, and interact with articles.
 
-**Domain**: Social media and content publishing platform for sharing knowledge and articles.
+**Domain**: Social content publishing and consumption platform for bloggers and readers.
 
 **Target Users**:
 
-- **Content Creators**: Users who write and publish articles on various topics
-- **Readers**: Users who consume content, follow authors, and engage with articles
-- **Community Members**: Users who participate through comments, favorites, and following other users
+- **Writers**: Users who create and publish articles with markdown support
+- **Readers**: Users who consume, favorite, and comment on articles
+- **Social Users**: Users who follow other writers and engage with content
 
-**Core Value Proposition**: Provides a simplified yet fully-featured blogging platform that demonstrates modern Angular development practices while enabling knowledge sharing and community building.
+**Core Value Proposition**: Provides a clean, modern interface for content creators to share articles and build an audience through social features like following, favoriting, and commenting.
 
 ## 2. Functional Documentation
 
 ### 2.1 Feature Inventory
 
-#### Authentication & User Management
+**Authentication & User Management**
 
-- **User Registration**: Anonymous users can create new accounts
-- **User Login**: Existing users can authenticate with email/password
-- **User Settings**: Authenticated users can update profile information (username, email, bio, profile image, password)
-- **User Logout**: Authenticated users can terminate their session
+- **User Registration**: Anonymous users can create accounts with username, email, password
+- **User Login**: Registered users can authenticate with email/password
+- **User Settings**: Authenticated users can update profile information (username, email, bio, image, password)
+- **User Logout**: Authenticated users can sign out and clear session
 
-#### Article Management
+**Article Management**
 
 - **Article Creation**: Authenticated users can create new articles with title, description, body (markdown), and tags
-- **Article Editing**: Article authors can edit their existing articles
+- **⚠️ Article Editing**: **CRITICAL BUG** - Editor component always creates new articles instead of updating existing ones due to implementation error (calls `create()` method regardless of edit context)
 - **Article Deletion**: Article authors can delete their articles
-- **Article Viewing**: All users can read individual articles with rendered markdown content
+- **Article Viewing**: All users can read articles with rendered markdown content
+
+**Social Features**
+
 - **Article Favoriting**: Authenticated users can favorite/unfavorite articles
-
-#### Content Discovery
-
-- **Global Feed**: Display paginated list of all articles
-- **Personal Feed**: Display articles from followed users (authenticated users only)
-- **Tag-based Filtering**: Filter articles by specific tags
-- **Popular Tags**: Browse articles by popular tags displayed in sidebar
-- **Article Search**: Filter articles by author or favorited by user
-
-#### Social Features
-
-- **User Profiles**: View user profile pages showing bio, stats, and articles
 - **User Following**: Authenticated users can follow/unfollow other users
-- **Comments**: Authenticated users can add comments to articles
-- **Comment Deletion**: Comment authors can delete their comments
+- **Profile Viewing**: All users can view user profiles showing their articles and favorites
+- **Commenting**: Authenticated users can add and delete comments on articles
 
-#### Content Organization
+**Content Discovery**
 
-- **Pagination**: Navigate through large lists of articles (10 articles per page)
-- **Article Lists**: View articles by author or user's favorited articles
-- **Tag System**: Articles can be tagged and filtered by tags
+- **Article Feed**: Authenticated users see personalized feeds from followed users
+- **Global Feed**: All users can browse all public articles
+- **Tag-based Filtering**: All users can filter articles by tags
+- **Pagination**: Article lists support pagination for performance
 
 ### 2.2 User Journey Maps
 
-#### Authentication Flow
+**Authentication Flow**:
 
-1. User visits site → Sees global feed and can browse articles
-2. User clicks "Sign in/Sign up" → Directed to authentication page
-3. User submits credentials → JWT token stored in localStorage
-4. User redirected to home page → Now sees personal feed option
-5. User can access protected features (create articles, comment, follow, etc.)
+1. User visits login/register page
+2. Submits credentials via form
+3. JWT token stored in localStorage
+4. User redirected to home page
+5. Authenticated state persists across sessions
 
-#### Article Creation Workflow
+**Article Creation Workflow**:
 
-1. Authenticated user clicks "New Article" → Directed to editor page
-2. User fills form (title, description, body, tags) → Real-time tag management
-3. User clicks "Publish Article" → Article created and user redirected to article view
-4. Author can edit or delete article from article view page
+1. Authenticated user navigates to editor
+2. Fills article form (title, description, body, tags)
+3. Submits article for creation
+4. Redirected to published article view
+5. Article appears in user's profile and global feed
 
-**⚠️ CRITICAL BUG**: Article editing functionality is broken - the editor always calls `create()` method instead of `update()`, resulting in duplicate articles when attempting to edit.
+**Social Interaction Flow**:
 
-#### Content Discovery Flow
-
-1. User browses global feed → Sees paginated article list
-2. User clicks on article → Views full article with comments
-3. User can favorite article or follow author → Immediate UI feedback
-4. User clicks on tag → Filters articles by that tag
-5. User navigates pagination → Loads additional articles
+1. User discovers article via feed or profile
+2. Reads article content with rendered markdown
+3. Can favorite article or follow author
+4. Can add comments to engage with content
+5. Actions update user's social graph
 
 ### 2.3 Business Logic Rules
 
-#### Authentication Rules
+**Authentication Rules**:
 
-- JWT tokens stored in localStorage for session persistence
+- JWT tokens required for protected routes (editor, settings, profile actions)
 - Unauthenticated users redirected to login for protected actions
-- Users cannot access settings, editor, or perform social actions without authentication
-- Login/register pages inaccessible to authenticated users
+- Token persistence in localStorage for session management
 
-#### Content Access Rules
+**Content Ownership Rules**:
 
-- All articles publicly readable regardless of authentication status
-- Only article authors can edit or delete their articles
+- Only article authors can edit/delete their articles
 - Only comment authors can delete their comments
-- Personal feed only available to authenticated users
+- All users can view public articles and profiles
 
-#### Data Validation Rules
+**Data Validation Rules**:
 
-- Authentication forms use Angular Reactive Forms with basic required validation
-- Required fields: email, password for login; email, password, username for registration
-- **No email format validation implemented** - any text accepted as email
-- **No client-side validation on article forms** - title, description, body can be empty
-- Settings form only requires password field - other fields optional
-
-#### Social Interaction Rules
-
-- **UI-Only Restrictions**: Follow and favorite buttons hidden when viewing own content (`@if (!isUser)` logic)
-- **No actual prevention** of self-following or self-favoriting - these are UI conveniences only
-- Following/unfavoriting requires authentication (redirects to login if not authenticated)
-- Comment creation requires authentication
+- User registration requires unique username and email
+- Article creation requires title and body content
+- All forms include client-side validation for required fields
+- **⚠️ Inconsistent Email Validation**: Authentication forms use `type="text"` for email fields while settings form uses HTML5 `type="email"` validation
 
 ## 3. Technical Documentation
 
@@ -118,177 +99,172 @@
 
 **Technology Stack**:
 
-- **Framework**: Angular 20.0.0 with standalone components
+- **Framework**: Angular 20.0.0
 - **Language**: TypeScript 5.8.3
-- **Build Tool**: Angular CLI 20.0.0 with esbuild
-- **HTTP Client**: Angular HttpClient with functional interceptors
-- **State Management**: RxJS with BehaviorSubject for user state
-- **Styling**: CSS with Bootstrap classes
-- **Markdown**: Marked.js library for markdown parsing
-- **Testing Framework**: Jasmine + Karma (configured but no tests implemented)
-- **Node Runtime**: Node.js ^20.11.1
+- **Styling**: RealWorld CSS Framework (loaded via CDN), Ionicons, Google Fonts
+- **HTTP Client**: Angular HttpClient
+- **State Management**: RxJS with BehaviorSubject pattern
+- **Build Tool**: Angular CLI with esbuild
+- **Runtime**: Node.js ^20.11.1
+- **External Dependencies**: RX Angular reactive extensions, Marked (markdown parsing)
 
 **Project Structure**:
 
 ```
 src/app/
-├── core/                    # Singleton services and app-wide components
-│   ├── auth/               # Authentication module
+├── core/                    # Shared services and utilities
+│   ├── auth/               # Authentication components and services
 │   ├── interceptors/       # HTTP interceptors
-│   ├── layout/             # Header and footer components
-│   └── models/             # Core data models
-├── features/               # Feature modules
-│   ├── article/            # Article management feature
-│   ├── profile/            # User profile feature
-│   └── settings/           # User settings feature
-└── shared/                 # Reusable components and utilities
-    ├── components/         # Shared UI components
-    └── pipes/              # Custom pipes
+│   ├── layout/            # Header and footer components
+│   └── models/            # Shared data models
+├── features/              # Feature-specific modules
+│   ├── article/          # Article CRUD and display
+│   ├── profile/          # User profile management
+│   └── settings/         # User settings management
+└── shared/               # Reusable components and utilities
 ```
 
 **Design Patterns**:
 
-- **Component Architecture**: Standalone components with lazy loading
-- **Service Layer Pattern**: Injectable services for data access and business logic
-- **Observer Pattern**: RxJS observables for reactive data flow
-- **Interceptor Pattern**: HTTP interceptors for cross-cutting concerns
-- **Guard Pattern**: Route guards for authentication
+- **Standalone Components**: All components use Angular's standalone component architecture
+- **Lazy Loading**: Feature modules loaded on demand via router
+- **Dependency Injection**: Services injected using Angular's inject() function
+- **Reactive Programming**: Extensive use of RxJS Observables for state management
+- **Interceptor Pattern**: HTTP requests processed through authentication and error interceptors
 
 **Data Flow**:
 
-1. User interactions trigger component methods
-2. Components call service methods for data operations
-3. Services make HTTP requests through interceptors
-4. Interceptors handle API URL prefixing, authentication tokens, and error formatting
-5. Responses flow back through observables to update UI
+1. Components inject services using Angular DI
+2. Services make HTTP calls through interceptors
+3. API responses update BehaviorSubject state
+4. Components subscribe to Observable state changes
+5. Templates reactively update via async pipe
 
-**Frontend Architecture**:
-
-- **Component Hierarchy**: App → Layout (Header/Footer) → Routed Components → Feature Components
-- **State Management**: Central user state in UserService with BehaviorSubject
-- **Routing Strategy**: Standard routing (not hash-based) with lazy-loaded components
-- **API Integration**: RESTful API consumption with RxJS observables
+**Routing Strategy**: Standard Angular routing (not hash-based) with lazy-loaded feature modules and route guards for authentication.
 
 ### 3.2 Development Environment
 
 **Prerequisites**:
 
 - Node.js ^20.11.1
-- npm (package manager)
-- Angular CLI (installed globally via `npm install -g @angular/cli`)
+- Angular CLI (required globally for ng commands)
+
+**⚠️ Package Manager Conflict**:
+
+- **Actual Setup**: Project uses npm (package-lock.json present)
+- **README Claims**: README mentions Yarn but this conflicts with actual setup
+- **Resolution**: Use npm commands as shown below, not yarn
 
 **Installation Steps**:
 
-**⚠️ Package Manager Discrepancy Note**: The README.md recommends using Yarn, but the project contains `package-lock.json`, indicating npm is the actual package manager used. Follow these npm-based instructions:
-
 ```bash
 # Clone the repository
-git clone <repository-url>
+git clone https://github.com/jiteshy/angular-realworld-example-app.git
 cd angular-realworld-example-app
 
-# Install dependencies using npm (NOT yarn despite README recommendation)
+# Install dependencies (use npm, not yarn despite README)
 npm install
 
 # Start development server
 npm start
-# or
+# OR
 ng serve
+
+# Navigate to http://localhost:4200
 ```
 
 **Configuration**:
 
-- **API Configuration**: Hardcoded API base URL `https://api.realworld.io/api` in `src/app/core/interceptors/api.interceptor.ts`
-- **No Environment Files**: No environment configuration files exist - API URL is not configurable
-- **JWT Storage**: Authentication tokens stored in browser localStorage
+- **Environment Files**: Does not exist - no environment-based configuration
+- **API Configuration**: Hardcoded to `https://api.realworld.io/api` in api.interceptor.ts
+- **Development Port**: 4200 (Angular CLI default)
 
 **Common Commands**:
 
 ```bash
-# Development server (http://localhost:4200)
-npm start
+# Development
+npm start              # Start dev server
+ng serve              # Alternative start command
 
-# Production build
-npm run build
+# Building
+npm run build         # Production build
+ng build              # Alternative build command
 
-# Linting
-npm run lint
+# Code Quality
+npm run lint          # Run ESLint
+npm run lint --force  # Ignore lint warnings
 
-# Testing (no tests currently implemented)
-npm test
-
-# Serve documentation
-npm run serve:docs
+# Documentation
+npm run serve:docs    # Serve docs on port 8080
 ```
 
 ### 3.3 Code Organization
 
 **Directory Structure**:
 
-- **`src/app/core/`**: Singleton services, authentication, interceptors, layout components
-- **`src/app/features/`**: Feature-specific modules (article, profile, settings)
-- **`src/app/shared/`**: Reusable components, pipes, and utilities
-- **`src/assets/`**: Static assets (images, fonts, etc.)
+- `src/app/core/`: Authentication, interceptors, layout components, shared models
+- `src/app/features/`: Business logic grouped by domain (articles, profiles, settings)
+- `src/app/shared/`: Reusable UI components and utilities
+- `src/assets/`: Static assets (favicon, images)
 
 **File Naming Conventions**:
 
-- `*.component.ts` - Angular components
-- `*.service.ts` - Injectable services
-- `*.model.ts` - TypeScript interfaces
-- `*.pipe.ts` - Custom pipes
-- `*.directive.ts` - Custom directives
-- All files use kebab-case naming
+- Components: `*.component.ts` (kebab-case)
+- Services: `*.service.ts` (kebab-case)
+- Models: `*.model.ts` (kebab-case)
+- Directives: `*.directive.ts` (kebab-case)
+- Pipes: `*.pipe.ts` (kebab-case)
 
 **Import/Export Patterns**:
 
-- ES6 imports with named exports
-- Relative imports for local files
+- Named exports for all components and services
+- Relative imports for local modules
 - Absolute imports for Angular core modules
-- Service injection using `inject()` function
+- Barrel exports not used
 
 **State Management**:
 
-- **User State**: Centralized in `UserService` using BehaviorSubject
-- **Component State**: Local state using component properties and RxJS operators
-- **Authentication State**: Boolean observable derived from user state
-- **Loading States**: Enum-based loading state management
+- BehaviorSubject pattern for user authentication state
+- Service-based state management without external libraries
+- Reactive forms for user input handling
+- RxJS operators for data transformation
 
 ### 3.4 API Documentation
 
 **External APIs**:
 
-- **RealWorld API**: `https://api.realworld.io/api` - RESTful API for all backend operations
-- **Authentication**: JWT token-based authentication
-- **Content Type**: JSON for all requests/responses
+- **RealWorld API**: `https://api.realworld.io/api` (hardcoded in api.interceptor.ts)
+- **Purpose**: Backend service providing all CRUD operations for articles, users, comments
 
 **API Integration**:
 
-- **HTTP Client**: Angular HttpClient with functional interceptors
-- **Base URL**: Automatically prefixed by `apiInterceptor`
-- **Authentication**: JWT token automatically added to requests via `tokenInterceptor`
-- **Error Handling**: Standardized error format via `errorInterceptor`
+- All HTTP requests automatically prefixed with base URL via interceptor
+- JWT token automatically attached to requests via token interceptor
+- Error responses handled globally via error interceptor
+- API responses wrapped in Observable streams
 
 **Authentication Flow**:
 
-- Login/Register returns JWT token
-- Token stored in localStorage via `JwtService`
-- Token automatically included in subsequent API requests
-- Token removal on logout clears authentication state
+- Login/Register endpoints return JWT token
+- Token stored in localStorage via JwtService
+- Token included in Authorization header for protected requests
+- Token cleared on logout or authentication errors
 
 **Error Handling**:
 
-- Global error interception via `errorInterceptor`
-- Error objects follow `{ errors: { [key: string]: string } }` interface
-- Error display via `ListErrorsComponent`
-- Client-side error recovery through retry patterns
+- Global error interceptor catches HTTP errors
+- Network errors displayed to users via error components
+- Authentication errors trigger automatic logout
+- Service-level error handling with fallback states
 
 ### 3.5 Data Management
 
 **Client-Side State**:
 
-- **User Authentication**: BehaviorSubject in `UserService` for current user state
-- **Article Lists**: Component-level state with pagination support
-- **Form State**: Angular Reactive Forms for all user inputs
-- **Loading States**: Enum-based loading state tracking
+- User authentication state managed via BehaviorSubject in UserService
+- Article data fetched on-demand and not persisted client-side
+- Form state managed through Angular Reactive Forms
+- No complex client-side caching implemented
 
 **Data Models**:
 
@@ -313,33 +289,20 @@ interface Article {
   favoritesCount: number;
   author: Profile;
 }
-
-interface Profile {
-  username: string;
-  bio: string;
-  image: string;
-  following: boolean;
-}
-
-interface Comment {
-  id: string;
-  body: string;
-  createdAt: string;
-  author: Profile;
-}
 ```
 
 **Local Storage**:
 
-- **JWT Token**: Stored as `jwtToken` in localStorage
-- **Session Persistence**: User remains logged in across browser sessions
-- **Token Management**: Automatic cleanup on logout
+- JWT tokens stored in localStorage for session persistence
+- No other client-side data persistence implemented
+- Token automatically retrieved on app initialization
 
 **Data Synchronization**:
 
-- **Real-time Updates**: Immediate UI updates for user actions (follow, favorite)
-- **Optimistic Updates**: UI updates before server confirmation
-- **Error Recovery**: Rollback on failed operations
+- Real-time synchronization not implemented
+- Data refreshed through user-initiated actions
+- Optimistic updates for favoriting actions
+- Manual refresh required for new content
 
 ## 4. Development Guidelines
 
@@ -347,120 +310,98 @@ interface Comment {
 
 **Coding Style**:
 
-- TypeScript strict mode enabled
 - Single quotes for string literals
 - 2-space indentation
-- Trailing comma enforcement via Prettier
-- Consistent import ordering (Angular → RxJS → Libraries → Local)
+- Kebab-case for file names
+- camelCase for variables and functions
+- PascalCase for classes and interfaces
 
-**Linting Rules**:
+**Linting and Formatting**:
 
-- ESLint with Angular-specific rules
-- Prettier for code formatting
-- Husky pre-commit hooks with lint-staged
-- Force linting via `ng lint --force`
-
-**Angular Best Practices**:
-
-- Standalone components preferred
-- `inject()` function for dependency injection
-- `takeUntilDestroyed()` for subscription management
-- Reactive forms for all user inputs
-- OnPush change detection where applicable
+- ESLint configured with Angular recommended rules
+- Prettier configured for code formatting
+- Husky git hooks for pre-commit linting
+- Lint-staged for efficient formatting
 
 **Git Workflow**:
 
-- Husky pre-commit hooks configured
-- Prettier formatting enforced on commit
-- Lint-staged runs on `*.{ts,html,css,json,md}` files
+- Pre-commit hooks enforce code formatting
+- Prettier runs on TypeScript, HTML, CSS, JSON, and Markdown files
+- No specific branch naming conventions documented
 
 ### 4.2 Testing Strategy
 
-**Testing**: No test files found in the codebase. Testing framework (Jasmine + Karma) is configured in `package.json` and `angular.json` but no tests are implemented.
+**Testing**: No test files found in the codebase. Testing framework configured but completely broken.
 
-**Configured but Not Implemented**:
-
-- Jasmine testing framework
-- Karma test runner
-- Code coverage reporting
-- Chrome headless testing setup
+- Jasmine and Karma configured in package.json
+- **⚠️ CRITICAL**: `npm test` command fails with TypeScript configuration errors due to missing test files
+- Testing infrastructure present but non-functional (tsconfig.spec.json expects test files that don't exist)
 
 ### 4.3 Performance Considerations
 
-**Optimization Strategies**:
+**Bundle Optimization**:
 
-- **Lazy Loading**: Components loaded on-demand via dynamic imports
-- **OnPush Change Detection**: Used in presentational components
-- **TrackBy Functions**: Implemented for `*ngFor` loops in article lists
-- **Bundle Optimization**: Angular CLI build optimization with tree-shaking
-- **Image Optimization**: NgOptimizedImage directive available but not currently used
+- Lazy loading implemented for feature modules
+- Standalone components reduce bundle size
+- esbuild used for fast compilation
 
-**Build Performance**:
+**Runtime Performance**:
 
-- **Bundle Budget Limits**: 500kb initial warning, 1MB error limit
-- **Component Style Budget**: 2kb warning, 4kb error limit
-- **Code Splitting**: Automatic via Angular CLI and dynamic imports
+- Async pipe used for reactive data binding
+- OnPush change detection not implemented
+- No image optimization implemented
 
 ## 5. Deployment & Operations
 
 ### 5.1 Build Process
 
-**Build Configuration**:
-
-- **Build Tool**: Angular CLI with esbuild application builder
-- **Output Directory**: `dist/angular-conduit/`
-- **Production Optimizations**: Minification, tree-shaking, output hashing
-- **Development Build**: Source maps enabled, no optimization
-
 **Build Commands**:
 
 ```bash
-# Development build
-ng build
-
-# Production build
-ng build --configuration production
-
-# Build with output hashing
-ng build --output-hashing all
+npm run build    # Production build
+ng build         # Alternative command
 ```
+
+**Build Output**:
+
+- Static files generated in `dist/` directory
+- Angular CLI with esbuild for optimization
+- No specific environment configurations
 
 **Asset Handling**:
 
-- **Static Assets**: Copied from `src/assets/` and `src/favicon.ico`
-- **Redirects**: Netlify `_redirects` file included for SPA routing
-- **Styles**: Global CSS from `src/styles.css`
+- Static assets served from `src/assets/`
+- **External CDN Dependencies**: RealWorld CSS framework, Ionicons, Google Fonts loaded from external CDNs
+- Basic favicon and logo assets included
+- No custom CDN integration for local assets
 
 ### 5.2 Deployment Process
 
 **Static Hosting**:
 
-- **Target**: Static hosting platforms (Netlify, Vercel, GitHub Pages)
-- **SPA Routing**: Requires server configuration for client-side routing
-- **Redirects**: `_redirects` file configured for Netlify deployment
-- **Build Output**: Single-page application with static assets
+- Application built as static files suitable for any web server
+- No server-side rendering implemented
+- Requires routing configuration for single-page application
 
 **Environment Configuration**:
 
-- **API URL**: Hardcoded in interceptor - no runtime configuration
-- **No Environment Variables**: No environment-specific configuration files exist
-- **Build-time Configuration**: All settings compiled into build artifacts
+- No environment-specific configurations available
+- API URL hardcoded in source code
+- No build-time variable injection
 
 ### 5.3 Monitoring & Debugging
 
-**Browser Developer Tools**:
+**Error Tracking**:
 
-- Angular DevTools extension for component inspection
-- RxJS debugging through observable streams
-- Network tab for API request monitoring
-- Console logging for error tracking
+- Global error interceptor for HTTP errors
+- Console logging for development debugging
+- No external error tracking services integrated
 
-**Debugging Techniques**:
+**Performance Monitoring**:
 
-- Component state inspection via Angular DevTools
-- Observable stream debugging with RxJS operators
-- HTTP request/response monitoring via network inspector
-- Local storage inspection for JWT token debugging
+- No performance monitoring implemented
+- Standard browser developer tools available
+- No analytics or user behavior tracking
 
 ## 6. Quick Start Guides
 
@@ -468,165 +409,98 @@ ng build --output-hashing all
 
 **5-Step Onboarding**:
 
-1. **Environment Setup**:
+1. **Setup**: Install Node.js 20.11.1+ and Angular CLI globally
+2. **Install**: Clone repo and run `npm install` (ignore README's yarn reference)
+3. **Run**: Execute `npm start` and open http://localhost:4200
+4. **Explore**: Navigate through login, article creation, and user profiles
+5. **Code**: Start with `src/app/features/` to understand feature implementation
 
-   ```bash
-   # Install Node.js ^20.11.1 and Angular CLI globally
-   npm install -g @angular/cli
-   git clone <repository-url>
-   cd angular-realworld-example-app
-   ```
+**First Feature Implementation**:
+Create a new article tag component:
 
-2. **Dependency Installation**:
-
-   ```bash
-   # Use npm (not yarn despite README recommendation)
-   npm install
-   ```
-
-3. **Start Development Server**:
-
-   ```bash
-   npm start
-   # Access application at http://localhost:4200
-   ```
-
-4. **Understand Project Structure**:
-
-   - Review `src/app/core/` for authentication and services
-   - Explore `src/app/features/` for main application features
-   - Check `src/app/shared/` for reusable components
-
-5. **Make First Change**:
-   - Modify home page banner text in `src/app/features/article/pages/home/home.component.html`
-   - Observe hot reload in browser
-
-**First Feature to Implement**:
-Implement user avatar display in article previews:
-
-1. Add avatar image to `ArticlePreviewComponent` template
-2. Style avatar with CSS classes
-3. Link avatar to author profile page
-4. Test with different user profiles
+1. Generate component: `ng generate component features/article/components/tag-list`
+2. Add to article template with tag display logic
+3. Style with CSS classes following existing patterns
+4. Test integration with article data
 
 **Common Pitfalls**:
 
-- **Package Manager**: Don't use yarn commands - use npm despite README
-- **Global CLI**: Ensure Angular CLI installed globally for `ng` commands
-- **API Dependencies**: Application requires internet connection for backend API
-- **Authentication**: Many features require user authentication to test properly
+- Don't mix npm and yarn commands despite README suggestions
+- Remember that routes require authentication - check UserService.isAuthenticated
+- API calls automatically prefixed - don't add base URL manually
 
 ### 6.2 For QA Engineers
 
-**Testing Framework Status**: No test suites exist in the codebase.
+**Testing Areas**:
 
-**Manual Testing Areas**:
+- **Authentication**: Login/register with various credential combinations
+- **Article Management**: Create, edit, delete articles with different content types
+- **Social Features**: Follow/unfollow users, favorite articles, add comments
+- **Navigation**: Test routing between all pages and authentication redirects
 
-**Authentication Testing**:
+**Test Data**:
 
-- User registration with valid/invalid credentials
-- User login with correct/incorrect credentials
-- Session persistence across browser restarts
-- Logout functionality and state cleanup
-
-**Article Management Testing**:
-
-- Article creation with various content types
-- Article editing permissions (author-only)
-- Article deletion permissions (author-only)
-- Markdown rendering verification
-
-**Social Features Testing**:
-
-- Follow/unfollow user interactions
-- Article favoriting/unfavoriting
-- Comment creation and deletion
-- Permission checks for all social actions
-
-**Navigation and UI Testing**:
-
-- Client-side routing functionality
-- Pagination on article lists
-- Tag filtering and search
-- Responsive design on mobile devices
+- Use RealWorld API for backend testing
+- Create test accounts for different user roles
+- Test with articles containing markdown formatting
 
 **Bug Reporting**:
 
-- Include browser version and device information
-- Provide steps to reproduce with specific user credentials
-- Note authentication state when issue occurs
-- Include console errors and network request failures
+- Include browser console errors
+- Note authentication state when issues occur
+- Test across different user permission levels
 
 ## 7. Troubleshooting
 
-### Common Issues
+**Common Issues**:
 
-**Package Manager Conflicts**:
+**Installation Problems**:
 
-- **Issue**: README mentions yarn but package-lock.json exists
-- **Solution**: Use npm commands exclusively, ignore yarn references in README
-- **Prevention**: Stick to npm for all dependency management
+- _Issue_: Package manager conflicts between README and actual setup
+- _Solution_: Use npm commands only, ignore yarn references in README
 
-**Global Angular CLI Missing**:
+**Development Server Issues**:
 
-- **Issue**: `ng` command not found
-- **Solution**: Install Angular CLI globally: `npm install -g @angular/cli`
-- **Prevention**: Include global CLI installation in setup instructions
+- _Issue_: ng command not found
+- _Solution_: Install Angular CLI globally: `npm install -g @angular/cli`
 
-**Authentication State Issues**:
+**Authentication Problems**:
 
-- **Issue**: User appears logged out after page refresh
-- **Solution**: Check localStorage for `jwtToken`, clear if corrupted
-- **Prevention**: Implement token expiration handling
+- _Issue_: Unexpected logouts or authentication errors
+- _Solution_: Check browser localStorage for JWT token, clear and re-login
 
-**API Connection Problems**:
+**API Connection Issues**:
 
-- **Issue**: Network errors when loading articles or authenticating
-- **Solution**: Verify internet connection and API availability at `https://api.realworld.io/api`
-- **Prevention**: Implement offline state handling
+- _Issue_: Network errors when accessing features
+- _Solution_: Verify RealWorld API availability at https://api.realworld.io/api
 
-### Environment Issues
+**Build Failures**:
 
-**Node Version Mismatch**:
+- _Issue_: TypeScript compilation errors
+- _Solution_: Ensure Node.js version matches requirement (^20.11.1)
+- _Solution_: Clear node_modules and reinstall: `rm -rf node_modules && npm install`
 
-- **Issue**: Build failures with wrong Node.js version
-- **Solution**: Use Node.js ^20.11.1 as specified in package.json engines
-- **Prevention**: Use Node Version Manager (nvm) to maintain correct version
+**Performance Issues**:
 
-**Port Already in Use**:
-
-- **Issue**: Default port 4200 unavailable
-- **Solution**: Use different port: `ng serve --port 4201`
-- **Prevention**: Check running processes before starting dev server
-
-### Runtime Errors
-
-**Component Loading Failures**:
-
-- **Issue**: Lazy-loaded components fail to load
-- **Solution**: Check for TypeScript compilation errors and fix imports
-- **Prevention**: Use Angular Language Service in IDE for early error detection
-
-**HTTP Request Failures**:
-
-- **Issue**: API requests return CORS or network errors
-- **Solution**: Verify API interceptors are configured correctly
-- **Prevention**: Implement proper error handling and user feedback
-
-### Performance Issues
-
-**Slow Initial Load**:
-
-- **Issue**: Application takes long time to load initially
-- **Solution**: Analyze bundle size with `ng build --stats-json` and webpack-bundle-analyzer
-- **Prevention**: Implement proper lazy loading and code splitting
-
-**Memory Leaks**:
-
-- **Issue**: Application becomes sluggish over time
-- **Solution**: Check for unsubscribed observables and use `takeUntilDestroyed()`
-- **Prevention**: Follow subscription management best practices consistently
+- _Issue_: Slow page loads or navigation
+- _Solution_: Check browser network tab for API response times
+- _Solution_: Clear browser cache and localStorage
 
 ---
 
-_This documentation reflects the actual implementation as of the current codebase state. All features and configurations documented here have been verified against the source code._
+## ⚠️ Critical Issues Summary
+
+### Functional Bugs
+
+1. **Article Editor Bug**: Editing existing articles creates duplicates instead of updating them due to implementation error in `src/app/features/article/pages/editor/editor.component.ts` (line 82-88)
+
+### Development Issues
+
+2. **Testing Infrastructure Broken**: `npm test` fails with TypeScript configuration errors - testing framework configured but non-functional
+3. **Inconsistent Email Validation**: Auth forms use basic text validation while settings form uses HTML5 email validation
+
+### Documentation Accuracy
+
+4. **External Dependencies**: Application uses RealWorld CSS framework, Ionicons, and Google Fonts via CDN (not "no framework detected")
+
+_This documentation reflects validated analysis with all critical issues identified through systematic verification against the actual codebase._

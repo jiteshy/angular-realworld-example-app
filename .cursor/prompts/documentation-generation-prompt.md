@@ -60,7 +60,7 @@ List all major features with:
 - **Prerequisites**: Required tools, versions, and environment setup
 - **Installation Steps**: Exact commands to get the project running locally (use ACTUAL package manager from the project)
 - **Configuration**: Environment variables, config files, and their purposes (only document environment configs that actually exist)
-- **Common Commands**: Development, testing, building, and deployment commands
+- **Common Commands**: Development, testing, building, and deployment commands (use project-specific build system: npm/yarn for JS, mvn/gradle for Java, pip/poetry for Python, dotnet for .NET, etc.)
 
 #### 3.3 Code Organization
 
@@ -147,17 +147,44 @@ List all major features with:
 
 **For Frontend Applications**:
 
-- Build commands and their outputs (webpack, Vite, etc.)
+- Build commands and their outputs (webpack, Vite, Parcel, etc.)
 - Environment-specific configurations
 - Asset optimization, bundling, and minification
 - Static asset handling and CDN integration
 
 **For Backend Services**:
 
-- Compilation process (if applicable)
+**JavaScript/Node.js**:
+
+- npm/yarn build scripts and their outputs
+- TypeScript compilation (tsc)
+- Bundle analysis and optimization
+
+**Java**:
+
+- Maven: `mvn clean compile`, `mvn package`, `mvn install`
+- Gradle: `./gradlew build`, `./gradlew bootJar`, `./gradlew war`
+- JAR/WAR artifact generation and dependencies
+
+**Python**:
+
+- pip: dependency installation via requirements.txt
+- Poetry: `poetry build`, `poetry install`
+- Wheel/source distribution creation
+- Virtual environment activation
+
+**Other Technologies**:
+
+- .NET: `dotnet build`, `dotnet publish`
+- PHP: `composer install`, `composer dump-autoload`
+- Go: `go build`, `go mod download`
+
+**Universal**:
+
 - Dependency resolution and packaging
 - Environment configuration management
 - Docker containerization (if used)
+- Build artifact optimization
 
 #### 5.2 Deployment Process
 
@@ -219,7 +246,9 @@ List all major features with:
 
 1. **Detect Project Type**: Determine if frontend (package.json with UI frameworks), backend (server frameworks, database configs), or full-stack
 
-2. **Determine Package Manager**:
+2. **Determine Package Manager & Build System**:
+   **JavaScript/TypeScript Projects**:
+
    - Check for yarn.lock (Yarn), package-lock.json (npm), pnpm-lock.yaml (pnpm)
    - **CRITICAL CHECK**: Compare with README.md recommendations - document any discrepancies
    - Use ONLY the package manager found in lock files - do not mention alternatives
@@ -227,8 +256,30 @@ List all major features with:
    - If package-lock.json exists, use ONLY npm commands throughout documentation
    - If yarn.lock exists, use ONLY yarn commands throughout documentation
    - **NEVER MIX**: Do not provide both npm and yarn command examples
+
+   **Java Projects**:
+
+   - Check for pom.xml (Maven), build.gradle/build.gradle.kts (Gradle)
+   - Use mvn commands for Maven projects, gradle/gradlew commands for Gradle projects
+   - Document wrapper scripts (mvnw, gradlew) if they exist
+
+   **Python Projects**:
+
+   - Check for requirements.txt, pyproject.toml, Pipfile, setup.py, poetry.lock
+   - Use pip commands for requirements.txt, poetry commands for pyproject.toml/poetry.lock
+   - Document virtual environment setup (venv, conda, poetry)
+
+   **Other Web Technologies**:
+
+   - PHP: composer.json (Composer)
+   - .NET: _.csproj, _.sln (dotnet CLI)
+   - Go: go.mod (go commands)
+   - Rust: Cargo.toml (cargo commands)
+
+   **Project Type Indicators**:
+
    - **Frontend**: package.json, yarn.lock/package-lock.json, npm dependencies, UI frameworks
-   - **Backend**: package.json, requirements.txt, pom.xml, go.mod, Cargo.toml, composer.json
+   - **Backend**: package.json, requirements.txt, pom.xml, build.gradle, go.mod, Cargo.toml, composer.json
 
 2.5. **Global Tool Dependency Detection**: - Examine package.json scripts for framework CLI usage (ng, vue, react-scripts) - **WARNING**: Commands requiring global tools need explicit prerequisite documentation - **REQUIRED**: Always test if documented commands work in clean environment - **FALLBACK**: Provide npx alternatives for commands requiring global tools - **COMMON ISSUE**: npm test, npm start, npm run build may fail without global CLI
 

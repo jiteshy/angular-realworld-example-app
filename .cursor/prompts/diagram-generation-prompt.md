@@ -227,7 +227,7 @@ Generate `docs/architecture_diagram.html` with comprehensive zoom functionality 
   </div>
 
   <div class="zoom-controls">
-    <div class="status-message status-positive" style="display: none;">Click components to view source files on GitHub</div>
+    <div class="status-message status-positive" style="display: none;">Click components/boxes below to view source files on GitHub</div>
     <div class="status-message status-negative" style="display: none;">GitHub repository not configured, click events disabled. Add repository URL to dependency file.</div>
     <div class="zoom-controls-group">
       <span class="usage-hint">Use Ctrl/Cmd + mouse wheel or keyboard (+/- keys) to zoom</span>
@@ -274,6 +274,7 @@ Generate `docs/architecture_diagram.html` with comprehensive zoom functionality 
    - Diagram: Takes remaining space (flex: 1) with overflow: auto for scrolling
    - Legend: No title/header, direct 6-column grid layout
    - Example structure:
+
      ```html
      <div class="container">
        <div class="header">

@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Angular RealWorld - Architecture Diagram</title>
-    <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10.6.1/dist/mermaid.min.js"></script>
     <style>
       * {
         margin: 0;
@@ -12,34 +12,35 @@
         box-sizing: border-box;
       }
 
-      body,
-      html {
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui,
+          sans-serif;
         width: 100vw;
         height: 100vh;
         overflow: hidden;
-        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
-          sans-serif;
+        background-color: #f8f9fa;
       }
 
       .container {
         display: flex;
         flex-direction: column;
-        width: 100vw;
         height: 100vh;
+        width: 100vw;
       }
 
       .header {
         background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
         color: white;
-        padding: 12px 20px;
         text-align: center;
+        padding: 12px;
         flex-shrink: 0;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
       }
 
       .header h1 {
         font-size: 1.4em;
-        margin-bottom: 4px;
         font-weight: 600;
+        margin-bottom: 2px;
       }
 
       .header p {
@@ -79,7 +80,7 @@
       .usage-hint {
         font-size: 11px;
         color: #6c757d;
-        margin-right: 8px;
+        font-style: italic;
       }
 
       .zoom-buttons {
@@ -88,29 +89,25 @@
       }
 
       .zoom-btn {
-        background: #fff;
-        border: 1px solid #ccc;
-        border-radius: 4px;
+        background: #007bff;
+        color: white;
+        border: none;
         padding: 4px 8px;
+        border-radius: 3px;
         font-size: 11px;
         cursor: pointer;
-        transition: all 0.2s;
+        transition: background-color 0.2s;
       }
 
       .zoom-btn:hover {
-        background: #f8f9fa;
-        border-color: #adb5bd;
-      }
-
-      .zoom-btn:active {
-        background: #e9ecef;
+        background: #0056b3;
       }
 
       #diagram {
         flex: 1;
         position: relative;
         overflow: auto;
-        background: #fafafa;
+        background: white;
       }
 
       .zoom-level-indicator {
@@ -120,8 +117,8 @@
         background: rgba(0, 0, 0, 0.7);
         color: white;
         padding: 4px 8px;
-        border-radius: 4px;
-        font-size: 11px;
+        border-radius: 3px;
+        font-size: 12px;
         z-index: 1000;
         pointer-events: none;
       }
@@ -134,19 +131,16 @@
       }
 
       .mermaid {
-        background: white;
-        border-radius: 4px;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-        margin: 20px;
+        margin: 0 auto;
       }
 
       .legend {
-        background: #fff;
+        background: #f8f9fa;
         border-top: 1px solid #dee2e6;
         padding: 10px;
+        flex-shrink: 0;
         max-height: 100px;
         overflow-y: auto;
-        flex-shrink: 0;
       }
 
       .legend-grid {
@@ -158,63 +152,65 @@
       .legend-item {
         display: flex;
         align-items: center;
+        gap: 4px;
         padding: 4px;
         border-radius: 3px;
-        font-size: 11px;
+        background: white;
+        border: 1px solid #dee2e6;
       }
 
       .legend-color {
         width: 12px;
         height: 12px;
         border-radius: 2px;
-        margin-right: 6px;
+        flex-shrink: 0;
       }
 
-      /* Legend Colors */
-      .ui-color {
+      .legend-label {
+        font-size: 11px;
+        color: #495057;
+      }
+
+      /* Legend colors matching diagram */
+      .external {
         background-color: #e1f5fe;
-        border: 1px solid #0277bd;
       }
-      .feature-color {
-        background-color: #f3e5f5;
-        border: 1px solid #7b1fa2;
-      }
-      .service-color {
+      .component {
         background-color: #e8f5e8;
-        border: 1px solid #2e7d32;
       }
-      .http-color {
+      .service {
         background-color: #fff3e0;
-        border: 1px solid #f57c00;
       }
-      .external-color {
-        background-color: #ffebee;
-        border: 1px solid #d32f2f;
+      .interceptor {
+        background-color: #f3e5f5;
       }
-      .shared-color {
-        background-color: #f1f8e9;
-        border: 1px solid #558b2f;
+      .config {
+        background-color: #e0f2f1;
       }
-      .tech-color {
-        background-color: #e3f2fd;
-        border: 1px solid #1976d2;
-      }
-      .warning-color {
+      .storage {
         background-color: #fff8e1;
-        border: 1px solid #ff8f00;
+      }
+      .guard {
+        background-color: #fce4ec;
+      }
+      .pipe {
+        background-color: #e8eaf6;
+      }
+      .buggy {
+        background-color: #ffebee;
       }
     </style>
   </head>
   <body>
     <div class="container">
       <div class="header">
-        <h1>Angular RealWorld Example App - Architecture</h1>
+        <h1>Angular RealWorld Architecture</h1>
         <p>System Architecture Diagram</p>
       </div>
 
       <div class="zoom-controls">
         <div class="status-message status-positive">
-          Click components to view source files on GitHub
+          Click components/boxes below to view source files on GitHub
         </div>
         <div class="zoom-controls-group">
           <span class="usage-hint"
@@ -232,116 +228,142 @@
         <div class="zoom-level-indicator" id="zoomIndicator">25%</div>
         <div class="diagram-container">
           <div class="mermaid">
-            flowchart TD %% User Interface Layer subgraph UILayer ["🎨 User
-            Interface Layer"] App["App Component<br />(Root)"] Header["Header
-            Component<br />(Navigation)"] Footer["Footer Component<br />(Footer)"]
-            end %% Feature Components subgraph Features ["🚀 Feature
-            Components"] subgraph ArticleFeature ["📰 Article Feature"]
-            Home["Home Component<br />(Article List)"] ArticleDetail["Article
-            Component<br />(Article View)"] Editor["Editor Component<br />(⚠️
-            CRUD Bug)"] ArticleList["Article List Component<br />(List
-            Display)"] ArticleMeta["Article Meta Component<br />(Author Info)"]
-            end subgraph ProfileFeature ["👤 Profile Feature"] Profile["Profile
-            Component<br />(User Profile)"] ProfileArticles["Profile Articles<br />(User
-            Articles)"] ProfileFavorites["Profile Favorites<br />(Liked
-            Articles)"] end subgraph AuthFeature ["🔐 Auth Feature"] Auth["Auth
-            Component<br />(Login/Register)"] Settings["Settings Component<br />(User
-            Settings)"] end end %% Service Layer subgraph Services ["⚙️ Service
-            Layer"] UserService["User Service<br />(BehaviorSubject State)"]
-            ArticleService["Article Service<br />(CRUD Operations)"]
-            ProfileService["Profile Service<br />(User Profiles)"]
-            JwtService["JWT Service<br />(Token Management)"]
-            CommentsService["Comments Service<br />(Comments CRUD)"]
-            TagsService["Tags Service<br />(Tag Management)"] end %% HTTP Layer
-            subgraph HTTPLayer ["🌐 HTTP Layer"] HttpClient["Angular
-            HttpClient<br />(HTTP Requests)"] subgraph Interceptors ["🔌
-            Interceptors"] APIInterceptor["API Interceptor<br />(Base URL)"]
-            TokenInterceptor["Token Interceptor<br />(JWT Headers)"]
-            ErrorInterceptor["Error Interceptor<br />(Error Handling)"] end end
-            %% External API subgraph External ["🌍 External Services"]
-            RealWorldAPI["RealWorld API<br />(api.realworld.io)"]
-            LocalStorage["Browser LocalStorage<br />(JWT Token)"] end %% Shared
-            Components subgraph Shared ["🔧 Shared Components"] ListErrors["List
-            Errors Component<br />(Error Display)"] MarkdownPipe["Markdown
-            Pipe<br />(Marked.js)"] FavoriteButton["Favorite Button<br />(UI
-            Only)"] FollowButton["Follow Button<br />(UI Only)"] end %%
-            Technology Stack subgraph TechStack ["📚 Technology Stack"]
-            Angular["Angular 20.0.0<br />(Standalone Components)"]
-            TypeScript["TypeScript 5.8.3<br />(Language)"] RxJS["RxJS 7.4.0<br />(Reactive
-            Programming)"] Bootstrap["Bootstrap<br />(Styling)"]
-            Marked["Marked.js<br />(Markdown)"] end %% Data Flow Connections App
-            --> Header App --> Footer %% Feature to Service Connections Home -->
-            ArticleService ArticleDetail --> ArticleService ArticleDetail -->
-            CommentsService Editor --> ArticleService Profile --> ProfileService
-            Auth --> UserService Settings --> UserService %% Service to HTTP
-            Connections UserService --> HttpClient ArticleService --> HttpClient
-            ProfileService --> HttpClient CommentsService --> HttpClient
-            TagsService --> HttpClient JwtService --> LocalStorage %% HTTP Layer
-            Flow HttpClient --> APIInterceptor APIInterceptor -->
-            TokenInterceptor TokenInterceptor --> ErrorInterceptor
-            ErrorInterceptor --> RealWorldAPI %% Shared Component Usage Auth -->
-            ListErrors Settings --> ListErrors ArticleDetail --> MarkdownPipe
-            Home --> FavoriteButton Profile --> FollowButton %% State Management
-            UserService -.->|"Observable State"| Auth UserService
-            -.->|"Observable State"| Header UserService -.->|"Observable State"|
-            Settings %% Click Events for GitHub Navigation click App href
+            flowchart TD %% External Layer subgraph "External Dependencies"
+            CDN["🎨 RealWorld CSS<br />demo.productionready.io"]:::external
+            ICONS["🔗 Ionicons<br />code.ionicframework.com"]:::external
+            FONTS["📝 Google Fonts<br />fonts.googleapis.com"]:::external
+            API["🌐 RealWorld API<br />api.realworld.io/api"]:::external end %%
+            Browser Layer subgraph "Browser Environment" HTML["📄 index.html<br />Main
+            HTML"]:::config LS["💾 Local Storage<br />JWT Token
+            Storage"]:::storage end %% Angular Application Layer subgraph
+            "Angular 20.0.0 Application" subgraph "App Core" APP["🚀 App
+            Component<br />Root Component"]:::component CONFIG["⚙️ App Config<br />Application
+            Bootstrap"]:::config ROUTES["🗺️ App Routes<br />Route
+            Configuration"]:::config end subgraph "Core Services &
+            Infrastructure" subgraph "Authentication" USERSERVICE["👤 User
+            Service<br />Authentication State"]:::service JWTSERVICE["🔐 JWT
+            Service<br />Token Management"]:::service AUTHCOMP["🔑 Auth
+            Component<br />Login/Register Forms"]:::component AUTHGUARD["🛡️
+            Route Guards<br />Authentication Protection"]:::guard end subgraph
+            "HTTP Infrastructure" APIINT["🔌 API Interceptor<br />Base URL
+            Handler"]:::interceptor TOKENINT["🎫 Token Interceptor<br />JWT
+            Attachment"]:::interceptor ERRORINT["❌ Error Interceptor<br />Global
+            Error Handling"]:::interceptor end subgraph "Layout Components"
+            HEADER["📋 Header Component<br />Navigation Bar"]:::component
+            FOOTER["📄 Footer Component<br />Page Footer"]:::component end end
+            subgraph "Feature Modules" subgraph "Article Management"
+            HOMECOMP["🏠 Home Component<br />Article Feed Display"]:::component
+            ARTICLECOMP["📖 Article Component<br />Article View"]:::component
+            EDITORCOMP["✏️ Editor Component<br />⚠️ BUG: Always Creates
+            New"]:::buggy ARTICLESERVICE["📚 Articles Service<br />CRUD
+            Operations"]:::service ARTICLEMETA["📊 Article Meta<br />Author &
+            Favorite Info"]:::component FAVBTN["❤️ Favorite Button<br />Article
+            Favoriting"]:::component ARTICLELIST["📋 Article List<br />Feed
+            Display"]:::component PREVIEW["👁️ Article Preview<br />List Item
+            Component"]:::component end subgraph "User Management"
+            PROFILECOMP["👤 Profile Component<br />User Profile
+            Display"]:::component SETTINGSCOMP["⚙️ Settings Component<br />User
+            Settings Form"]:::component PROFILESERVICE["👥 Profile Service<br />User
+            Data Management"]:::service FOLLOWBTN["➕ Follow Button<br />User
+            Following"]:::component PROFILEARTS["📖 Profile Articles<br />User's
+            Articles"]:::component PROFILEFAVS["❤️ Profile Favorites<br />User's
+            Favorites"]:::component end subgraph "Comments System"
+            COMMENTCOMP["💬 Comment Component<br />Comment Display"]:::component
+            COMMENTSSERVICE["💬 Comments Service<br />Comment
+            Operations"]:::service end subgraph "Shared Components" ERRORS["⚠️
+            Error List<br />Validation Display"]:::component MARKDOWN["📝
+            Markdown Pipe<br />Content Rendering"]:::pipe TAGSERVICE["🏷️ Tags
+            Service<br />Tag Management"]:::service end end end %% Data Flow
+            Connections HTML --> APP CDN --> HTML ICONS --> HTML FONTS --> HTML
+            APP --> CONFIG APP --> ROUTES APP --> HEADER APP --> FOOTER CONFIG
+            --> USERSERVICE CONFIG --> JWTSERVICE ROUTES --> AUTHGUARD AUTHGUARD
+            --> USERSERVICE USERSERVICE --> JWTSERVICE JWTSERVICE --> LS APIINT
+            --> API TOKENINT --> JWTSERVICE USERSERVICE --> APIINT
+            ARTICLESERVICE --> APIINT PROFILESERVICE --> APIINT COMMENTSSERVICE
+            --> APIINT TAGSERVICE --> APIINT HOMECOMP --> ARTICLESERVICE
+            HOMECOMP --> TAGSERVICE HOMECOMP --> ARTICLELIST ARTICLECOMP -->
+            ARTICLESERVICE ARTICLECOMP --> COMMENTSSERVICE ARTICLECOMP -->
+            COMMENTCOMP ARTICLECOMP --> ARTICLEMETA ARTICLECOMP --> MARKDOWN
+            EDITORCOMP --> ARTICLESERVICE PROFILECOMP --> PROFILESERVICE
+            PROFILECOMP --> PROFILEARTS PROFILECOMP --> PROFILEFAVS SETTINGSCOMP
+            --> USERSERVICE SETTINGSCOMP --> ERRORS AUTHCOMP --> USERSERVICE
+            AUTHCOMP --> ERRORS ARTICLELIST --> PREVIEW PREVIEW --> FAVBTN
+            PREVIEW --> ARTICLEMETA ARTICLEMETA --> FOLLOWBTN %% Color Coding
+            classDef external
+            fill:#e1f5fe,stroke:#0277bd,stroke-width:2px,color:#000 classDef
+            component fill:#e8f5e8,stroke:#2e7d32,stroke-width:2px,color:#000
+            classDef service
+            fill:#fff3e0,stroke:#ef6c00,stroke-width:2px,color:#000 classDef
+            interceptor fill:#f3e5f5,stroke:#7b1fa2,stroke-width:2px,color:#000
+            classDef config
+            fill:#e0f2f1,stroke:#00695c,stroke-width:2px,color:#000 classDef
+            storage fill:#fff8e1,stroke:#f57f17,stroke-width:2px,color:#000
+            classDef guard
+            fill:#fce4ec,stroke:#c2185b,stroke-width:2px,color:#000 classDef
+            pipe fill:#e8eaf6,stroke:#3f51b5,stroke-width:2px,color:#000
+            classDef buggy
+            fill:#ffebee,stroke:#d32f2f,stroke-width:3px,color:#000 %% Click
+            Events for GitHub Navigation click APP href
             "https://github.com/jiteshy/angular-realworld-example-app/blob/main/src/app/app.component.ts"
-            _blank click Header href
-            "https://github.com/jiteshy/angular-realworld-example-app/blob/main/src/app/core/layout/header.component.ts"
-            _blank click Footer href
-            "https://github.com/jiteshy/angular-realworld-example-app/blob/main/src/app/core/layout/footer.component.ts"
-            _blank click Home href
-            "https://github.com/jiteshy/angular-realworld-example-app/blob/main/src/app/features/article/pages/home/home.component.ts"
-            _blank click ArticleDetail href
-            "https://github.com/jiteshy/angular-realworld-example-app/blob/main/src/app/features/article/pages/article/article.component.ts"
-            _blank click Editor href
-            "https://github.com/jiteshy/angular-realworld-example-app/blob/main/src/app/features/article/pages/editor/editor.component.ts"
-            _blank click Profile href
-            "https://github.com/jiteshy/angular-realworld-example-app/blob/main/src/app/features/profile/pages/profile/profile.component.ts"
-            _blank click Auth href
-            "https://github.com/jiteshy/angular-realworld-example-app/blob/main/src/app/core/auth/auth.component.ts"
-            _blank click Settings href
-            "https://github.com/jiteshy/angular-realworld-example-app/blob/main/src/app/features/settings/settings.component.ts"
-            _blank click UserService href
+            _blank click CONFIG href
+            "https://github.com/jiteshy/angular-realworld-example-app/blob/main/src/app/app.config.ts"
+            _blank click ROUTES href
+            "https://github.com/jiteshy/angular-realworld-example-app/blob/main/src/app/app.routes.ts"
+            _blank click USERSERVICE href
             "https://github.com/jiteshy/angular-realworld-example-app/blob/main/src/app/core/auth/services/user.service.ts"
-            _blank click ArticleService href
-            "https://github.com/jiteshy/angular-realworld-example-app/blob/main/src/app/features/article/services/articles.service.ts"
-            _blank click ProfileService href
-            "https://github.com/jiteshy/angular-realworld-example-app/blob/main/src/app/features/profile/services/profile.service.ts"
-            _blank click JwtService href
+            _blank click JWTSERVICE href
             "https://github.com/jiteshy/angular-realworld-example-app/blob/main/src/app/core/auth/services/jwt.service.ts"
-            _blank click CommentsService href
-            "https://github.com/jiteshy/angular-realworld-example-app/blob/main/src/app/features/article/services/comments.service.ts"
-            _blank click TagsService href
-            "https://github.com/jiteshy/angular-realworld-example-app/blob/main/src/app/features/article/services/tags.service.ts"
-            _blank click APIInterceptor href
+            _blank click AUTHCOMP href
+            "https://github.com/jiteshy/angular-realworld-example-app/blob/main/src/app/core/auth/auth.component.ts"
+            _blank click APIINT href
             "https://github.com/jiteshy/angular-realworld-example-app/blob/main/src/app/core/interceptors/api.interceptor.ts"
-            _blank click TokenInterceptor href
+            _blank click TOKENINT href
             "https://github.com/jiteshy/angular-realworld-example-app/blob/main/src/app/core/interceptors/token.interceptor.ts"
-            _blank click ErrorInterceptor href
+            _blank click ERRORINT href
             "https://github.com/jiteshy/angular-realworld-example-app/blob/main/src/app/core/interceptors/error.interceptor.ts"
-            _blank click ListErrors href
+            _blank click HEADER href
+            "https://github.com/jiteshy/angular-realworld-example-app/blob/main/src/app/core/layout/header.component.ts"
+            _blank click FOOTER href
+            "https://github.com/jiteshy/angular-realworld-example-app/blob/main/src/app/core/layout/footer.component.ts"
+            _blank click HOMECOMP href
+            "https://github.com/jiteshy/angular-realworld-example-app/blob/main/src/app/features/article/pages/home/home.component.ts"
+            _blank click ARTICLECOMP href
+            "https://github.com/jiteshy/angular-realworld-example-app/blob/main/src/app/features/article/pages/article/article.component.ts"
+            _blank click EDITORCOMP href
+            "https://github.com/jiteshy/angular-realworld-example-app/blob/main/src/app/features/article/pages/editor/editor.component.ts"
+            _blank click ARTICLESERVICE href
+            "https://github.com/jiteshy/angular-realworld-example-app/blob/main/src/app/features/article/services/articles.service.ts"
+            _blank click PROFILECOMP href
+            "https://github.com/jiteshy/angular-realworld-example-app/blob/main/src/app/features/profile/pages/profile/profile.component.ts"
+            _blank click SETTINGSCOMP href
+            "https://github.com/jiteshy/angular-realworld-example-app/blob/main/src/app/features/settings/settings.component.ts"
+            _blank click PROFILESERVICE href
+            "https://github.com/jiteshy/angular-realworld-example-app/blob/main/src/app/features/profile/services/profile.service.ts"
+            _blank click COMMENTSSERVICE href
+            "https://github.com/jiteshy/angular-realworld-example-app/blob/main/src/app/features/article/services/comments.service.ts"
+            _blank click TAGSERVICE href
+            "https://github.com/jiteshy/angular-realworld-example-app/blob/main/src/app/features/article/services/tags.service.ts"
+            _blank click ERRORS href
             "https://github.com/jiteshy/angular-realworld-example-app/blob/main/src/app/shared/components/list-errors.component.ts"
-            _blank click MarkdownPipe href
+            _blank click MARKDOWN href
             "https://github.com/jiteshy/angular-realworld-example-app/blob/main/src/app/shared/pipes/markdown.pipe.ts"
-            _blank %% Color Coding classDef uiComponent
-            fill:#e1f5fe,stroke:#0277bd,stroke-width:2px classDef
-            featureComponent fill:#f3e5f5,stroke:#7b1fa2,stroke-width:2px
-            classDef service fill:#e8f5e8,stroke:#2e7d32,stroke-width:2px
-            classDef http fill:#fff3e0,stroke:#f57c00,stroke-width:2px classDef
-            external fill:#ffebee,stroke:#d32f2f,stroke-width:2px classDef
-            shared fill:#f1f8e9,stroke:#558b2f,stroke-width:2px classDef tech
-            fill:#e3f2fd,stroke:#1976d2,stroke-width:2px classDef warning
-            fill:#fff8e1,stroke:#ff8f00,stroke-width:3px class App,Header,Footer
-            uiComponent class
-            Home,ArticleDetail,Profile,Auth,Settings,ArticleList,ArticleMeta,ProfileArticles,ProfileFavorites
-            featureComponent class
-            UserService,ArticleService,ProfileService,JwtService,CommentsService,TagsService
-            service class
-            HttpClient,APIInterceptor,TokenInterceptor,ErrorInterceptor http
-            class RealWorldAPI,LocalStorage external class
-            ListErrors,MarkdownPipe,FavoriteButton,FollowButton shared class
-            Angular,TypeScript,RxJS,Bootstrap,Marked tech class Editor warning
+            _blank click ARTICLEMETA href
+            "https://github.com/jiteshy/angular-realworld-example-app/blob/main/src/app/features/article/components/article-meta.component.ts"
+            _blank click FAVBTN href
+            "https://github.com/jiteshy/angular-realworld-example-app/blob/main/src/app/features/article/components/favorite-button.component.ts"
+            _blank click ARTICLELIST href
+            "https://github.com/jiteshy/angular-realworld-example-app/blob/main/src/app/features/article/components/article-list.component.ts"
+            _blank click PREVIEW href
+            "https://github.com/jiteshy/angular-realworld-example-app/blob/main/src/app/features/article/components/article-preview.component.ts"
+            _blank click FOLLOWBTN href
+            "https://github.com/jiteshy/angular-realworld-example-app/blob/main/src/app/features/profile/components/follow-button.component.ts"
+            _blank click COMMENTCOMP href
+            "https://github.com/jiteshy/angular-realworld-example-app/blob/main/src/app/features/article/components/article-comment.component.ts"
+            _blank click PROFILEARTS href
+            "https://github.com/jiteshy/angular-realworld-example-app/blob/main/src/app/features/profile/components/profile-articles.component.ts"
+            _blank click PROFILEFAVS href
+            "https://github.com/jiteshy/angular-realworld-example-app/blob/main/src/app/features/profile/components/profile-favorites.component.ts"
+            _blank
           </div>
         </div>
       </div>
@@ -349,53 +371,58 @@
       <div class="legend">
         <div class="legend-grid">
           <div class="legend-item">
-            <div class="legend-color ui-color"></div>
-            <span>UI Components</span>
+            <div class="legend-color external"></div>
+            <span class="legend-label">External APIs</span>
           </div>
           <div class="legend-item">
-            <div class="legend-color feature-color"></div>
-            <span>Feature Components</span>
+            <div class="legend-color component"></div>
+            <span class="legend-label">Components</span>
           </div>
           <div class="legend-item">
-            <div class="legend-color service-color"></div>
-            <span>Services</span>
+            <div class="legend-color service"></div>
+            <span class="legend-label">Services</span>
           </div>
           <div class="legend-item">
-            <div class="legend-color http-color"></div>
-            <span>HTTP Layer</span>
+            <div class="legend-color interceptor"></div>
+            <span class="legend-label">Interceptors</span>
           </div>
           <div class="legend-item">
-            <div class="legend-color external-color"></div>
-            <span>External Services</span>
+            <div class="legend-color config"></div>
+            <span class="legend-label">Configuration</span>
           </div>
           <div class="legend-item">
-            <div class="legend-color shared-color"></div>
-            <span>Shared Components</span>
+            <div class="legend-color storage"></div>
+            <span class="legend-label">Storage</span>
           </div>
           <div class="legend-item">
-            <div class="legend-color tech-color"></div>
-            <span>Technology Stack</span>
+            <div class="legend-color guard"></div>
+            <span class="legend-label">Route Guards</span>
           </div>
           <div class="legend-item">
-            <div class="legend-color warning-color"></div>
-            <span>⚠️ Issues Found</span>
+            <div class="legend-color pipe"></div>
+            <span class="legend-label">Pipes</span>
+          </div>
+          <div class="legend-item">
+            <div class="legend-color buggy"></div>
+            <span class="legend-label">Known Issues</span>
           </div>
         </div>
       </div>
     </div>
 
     <script>
+      // Zoom functionality
       let zoomLevel = 0.25;
       const minZoom = 0.15;
       const maxZoom = 3;
-      const zoomStep = 0.25;
+      const zoomStep = 0.1;
 
       function updateZoom() {
         const container = document.querySelector(".diagram-container");
-        const indicator = document.getElementById("zoomIndicator");
-
         container.style.transform = `scale(${zoomLevel})`;
-        indicator.textContent = `${Math.round(zoomLevel * 100)}%`;
+
+        const indicator = document.getElementById("zoomIndicator");
+        indicator.textContent = Math.round(zoomLevel * 100) + "%";
       }
 
       function zoomIn() {
@@ -420,15 +447,15 @@
 
       function centerDiagram() {
         const diagramEl = document.getElementById("diagram");
-        diagramEl.scrollLeft =
-          (diagramEl.scrollWidth - diagramEl.clientWidth) / 2;
-        diagramEl.scrollTop =
-          (diagramEl.scrollHeight - diagramEl.clientHeight) / 2;
+        const scrollLeft = (diagramEl.scrollWidth - diagramEl.clientWidth) / 2;
+        const scrollTop = (diagramEl.scrollHeight - diagramEl.clientHeight) / 2;
+        diagramEl.scrollLeft = scrollLeft;
+        diagramEl.scrollTop = scrollTop;
       }
 
-      // Keyboard support
+      // Keyboard controls
       document.addEventListener("keydown", function (e) {
-        // Don't interfere if user is typing in an input
+        // Avoid zooming when typing in input fields
         if (e.target.tagName === "INPUT" || e.target.tagName === "TEXTAREA") {
           return;
         }
@@ -445,13 +472,12 @@
         }
       });
 
-      // Mouse wheel support with Ctrl/Cmd modifier
+      // Mouse wheel zoom
       document
         .getElementById("diagram")
         .addEventListener("wheel", function (e) {
           if (e.ctrlKey || e.metaKey) {
             e.preventDefault();
-
             if (e.deltaY < 0) {
               zoomIn();
             } else {
@@ -460,7 +486,7 @@
           }
         });
 
-      // Initialize Mermaid with securityLevel loose for GitHub links
+      // Initialize Mermaid with GitHub link support
       mermaid.initialize({
         startOnLoad: true,
         theme: "default",
@@ -471,8 +497,8 @@
         securityLevel: "loose",
       });
 
-      // Initialize zoom and center diagram after page load
-      window.addEventListener("load", function () {
+      // Initialize zoom and center diagram on load
+      document.addEventListener("DOMContentLoaded", function () {
         updateZoom();
         setTimeout(centerDiagram, 500);
       });
