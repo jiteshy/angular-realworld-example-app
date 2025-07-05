@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Angular RealWorld - Architecture Diagram</title>
-    <script src="https://cdn.jsdelivr.net/npm/mermaid@10.6.1/dist/mermaid.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
     <style>
       * {
         margin: 0;
@@ -13,449 +13,492 @@
       }
 
       body {
-        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui,
-          sans-serif;
-        width: 100vw;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+          Oxygen, Ubuntu, Cantarell, sans-serif;
+        background: #f8fafc;
         height: 100vh;
         overflow: hidden;
-        background-color: #f8f9fa;
       }
 
       .container {
+        background: white;
+        height: 100vh;
         display: flex;
         flex-direction: column;
-        height: 100vh;
-        width: 100vw;
+        overflow: hidden;
       }
 
       .header {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        background: #1e293b;
         color: white;
-        text-align: center;
-        padding: 12px;
-        flex-shrink: 0;
+        padding: 12px 20px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
         box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
       }
 
       .header h1 {
-        font-size: 1.4em;
+        font-size: 1.4rem;
         font-weight: 600;
-        margin-bottom: 2px;
+        margin: 0;
       }
 
-      .header p {
-        font-size: 0.9em;
-        opacity: 0.9;
-      }
-
-      .zoom-controls {
+      .tech-stack {
         display: flex;
-        justify-content: space-between;
+        gap: 8px;
         align-items: center;
-        background: #f8f9fa;
-        padding: 8px 20px;
-        border-bottom: 1px solid #dee2e6;
-        flex-shrink: 0;
+        flex-wrap: wrap;
       }
 
-      .status-message {
-        font-size: 12px;
+      .tech-item {
+        background: #3b82f6;
+        color: white;
+        padding: 4px 8px;
+        border-radius: 4px;
+        font-size: 0.75rem;
         font-weight: 500;
       }
 
-      .status-positive {
-        color: #000;
+      .tech-item.angular {
+        background: #dd0031;
       }
-
-      .status-negative {
-        color: #dc3545;
+      .tech-item.typescript {
+        background: #3178c6;
       }
-
-      .zoom-controls-group {
-        display: flex;
-        align-items: center;
-        gap: 12px;
+      .tech-item.rxjs {
+        background: #b7178c;
       }
-
-      .usage-hint {
-        font-size: 11px;
-        color: #6c757d;
-        font-style: italic;
+      .tech-item.standalone {
+        background: #42b883;
       }
-
-      .zoom-buttons {
-        display: flex;
-        gap: 4px;
-      }
-
-      .zoom-btn {
-        background: #007bff;
-        color: white;
-        border: none;
-        padding: 4px 8px;
-        border-radius: 3px;
-        font-size: 11px;
-        cursor: pointer;
-        transition: background-color 0.2s;
-      }
-
-      .zoom-btn:hover {
-        background: #0056b3;
-      }
-
-      #diagram {
-        flex: 1;
-        position: relative;
-        overflow: auto;
-        background: white;
-      }
-
-      .zoom-level-indicator {
-        position: absolute;
-        top: 10px;
-        left: 10px;
-        background: rgba(0, 0, 0, 0.7);
-        color: white;
-        padding: 4px 8px;
-        border-radius: 3px;
-        font-size: 12px;
-        z-index: 1000;
-        pointer-events: none;
-      }
-
-      .diagram-container {
-        display: inline-block;
-        margin: 0 auto;
-        transform-origin: center center;
-        transition: transform 0.3s ease;
-      }
-
-      .mermaid {
-        margin: 0 auto;
+      .tech-item.marked {
+        background: #f59e0b;
       }
 
       .legend {
-        background: #f8f9fa;
-        border-top: 1px solid #dee2e6;
-        padding: 10px;
-        flex-shrink: 0;
-        max-height: 100px;
-        overflow-y: auto;
-      }
-
-      .legend-grid {
-        display: grid;
-        grid-template-columns: repeat(6, 1fr);
-        gap: 6px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding: 8px 20px;
+        background: #1e293b;
+        gap: 20px;
+        flex-wrap: wrap;
       }
 
       .legend-item {
         display: flex;
         align-items: center;
-        gap: 4px;
-        padding: 4px;
-        border-radius: 3px;
-        background: white;
-        border: 1px solid #dee2e6;
+        gap: 6px;
+        font-size: 0.75rem;
+        color: white;
       }
 
       .legend-color {
         width: 12px;
         height: 12px;
         border-radius: 2px;
-        flex-shrink: 0;
       }
 
-      .legend-label {
-        font-size: 11px;
-        color: #495057;
+      .legend-color.external {
+        background: #ef4444;
+      }
+      .legend-color.components {
+        background: #3b82f6;
+      }
+      .legend-color.stores {
+        background: #8b5cf6;
+      }
+      .legend-color.services {
+        background: #10b981;
+      }
+      .legend-color.core {
+        background: #f59e0b;
       }
 
-      /* Legend colors matching diagram */
-      .external {
-        background-color: #e1f5fe;
+      .controls {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 8px 20px;
+        background: #f1f5f9;
+        border-bottom: 1px solid #e2e8f0;
+        font-size: 0.8rem;
       }
-      .component {
-        background-color: #e8f5e8;
+
+      .controls-left {
+        color: #64748b;
       }
-      .service {
-        background-color: #fff3e0;
+
+      .controls-right {
+        display: flex;
+        align-items: center;
+        gap: 8px;
       }
-      .interceptor {
-        background-color: #f3e5f5;
+
+      .zoom-info {
+        color: #64748b;
+        font-size: 0.7rem;
       }
-      .config {
-        background-color: #e0f2f1;
+
+      .zoom-controls {
+        display: flex;
+        gap: 4px;
       }
-      .storage {
-        background-color: #fff8e1;
+
+      .zoom-btn {
+        padding: 4px 8px;
+        border: 1px solid #d1d5db;
+        background: white;
+        cursor: pointer;
+        border-radius: 4px;
+        font-size: 0.7rem;
+        transition: all 0.2s;
       }
-      .guard {
-        background-color: #fce4ec;
+
+      .zoom-btn:hover {
+        background: #f3f4f6;
       }
-      .pipe {
-        background-color: #e8eaf6;
+
+      .zoom-btn.primary {
+        background: #3b82f6;
+        color: white;
+        border-color: #3b82f6;
       }
-      .buggy {
-        background-color: #ffebee;
+
+      .zoom-btn.primary:hover {
+        background: #2563eb;
+      }
+
+      .diagram-viewport {
+        flex: 1;
+        position: relative;
+        overflow: hidden;
+        background: white;
+      }
+
+      .zoom-indicator {
+        position: absolute;
+        top: 12px;
+        right: 12px;
+        background: rgba(0, 0, 0, 0.7);
+        color: white;
+        padding: 4px 8px;
+        border-radius: 4px;
+        font-size: 0.7rem;
+        font-weight: 500;
+        z-index: 10;
+      }
+
+      .diagram-container {
+        width: 100%;
+        height: 100%;
+        overflow: auto;
+        display: flex;
+        align-items: flex-start;
+        justify-content: flex-start;
+        padding: 20px;
+        box-sizing: border-box;
+      }
+
+      .diagram-wrapper {
+        transform-origin: top left;
+        transition: transform 0.2s ease;
+      }
+
+      #mermaid-diagram {
+        display: block;
+      }
+
+      .status-bar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 6px 20px;
+        background: #f1f5f9;
+        border-top: 1px solid #e2e8f0;
+        font-size: 0.7rem;
+        color: #64748b;
+      }
+
+      .status-left {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .github-link {
+        color: #3b82f6;
+        text-decoration: none;
+        font-weight: 500;
+      }
+
+      .github-link:hover {
+        text-decoration: underline;
+      }
+
+      .app-container {
+        height: 100vh;
+        display: flex;
+        flex-direction: column;
+      }
+
+      @media (max-width: 1024px) {
+        .header {
+          flex-direction: column;
+          gap: 8px;
+          padding: 8px 20px;
+        }
+
+        .header-right {
+          flex-direction: column;
+          gap: 8px;
+          align-items: flex-start;
+        }
+
+        .tech-stack,
+        .legend {
+          flex-wrap: wrap;
+        }
+      }
+
+      @media (max-width: 768px) {
+        .controls {
+          flex-direction: column;
+          gap: 6px;
+          align-items: flex-start;
+        }
+
+        .zoom-info {
+          display: none;
+        }
       }
     </style>
   </head>
   <body>
     <div class="container">
       <div class="header">
-        <h1>Angular RealWorld Architecture</h1>
-        <p>System Architecture Diagram</p>
+        <h1>Angular RealWorld</h1>
+        <div class="tech-stack">
+          <span class="tech-item angular">Angular 20.0.0</span>
+          <span class="tech-item typescript">TypeScript 5.8.3</span>
+          <span class="tech-item rxjs">RxJS 7.4.0</span>
+          <span class="tech-item standalone">Standalone</span>
+          <span class="tech-item marked">Marked 11.1.0</span>
+        </div>
       </div>
 
-      <div class="zoom-controls">
-        <div class="status-message status-positive">
-          Click components/boxes below to view source files on GitHub
-        </div>
-        <div class="zoom-controls-group">
-          <span class="usage-hint"
-            >Use Ctrl/Cmd + mouse wheel or keyboard (+/- keys) to zoom</span
+      <div class="controls">
+        <div class="controls-left">
+          💡 Click components to view source code •
+          <a
+            href="https://github.com/jiteshy/angular-realworld-example-app"
+            target="_blank"
+            class="github-link"
+            >GitHub</a
           >
-          <div class="zoom-buttons">
-            <button class="zoom-btn" onclick="zoomIn()">+ Zoom In</button>
-            <button class="zoom-btn" onclick="zoomOut()">- Zoom Out</button>
-            <button class="zoom-btn" onclick="resetZoom()">Reset</button>
+          •
+          <a
+            href="https://github.com/jiteshy/angular-realworld-example-app/blob/main/docs/PROJECT_DOCUMENTATION.md"
+            target="_blank"
+            class="github-link"
+            >📖 Documentation</a
+          >
+        </div>
+        <div class="controls-right">
+          <div class="zoom-info">+/- keys, wheel (Ctrl+scroll), or buttons</div>
+          <div class="zoom-controls">
+            <button class="zoom-btn" onclick="zoomOut()">−</button>
+            <button class="zoom-btn" onclick="zoomIn()">+</button>
+            <button class="zoom-btn primary" onclick="fitToScreen()">
+              Fit
+            </button>
+            <button class="zoom-btn" onclick="zoomToOriginal()">100%</button>
           </div>
         </div>
       </div>
 
-      <div id="diagram">
-        <div class="zoom-level-indicator" id="zoomIndicator">25%</div>
-        <div class="diagram-container">
-          <div class="mermaid">
-            flowchart TD %% External Layer subgraph "External Dependencies"
-            CDN["🎨 RealWorld CSS<br />demo.productionready.io"]:::external
-            ICONS["🔗 Ionicons<br />code.ionicframework.com"]:::external
-            FONTS["📝 Google Fonts<br />fonts.googleapis.com"]:::external
-            API["🌐 RealWorld API<br />api.realworld.io/api"]:::external end %%
-            Browser Layer subgraph "Browser Environment" HTML["📄 index.html<br />Main
-            HTML"]:::config LS["💾 Local Storage<br />JWT Token
-            Storage"]:::storage end %% Angular Application Layer subgraph
-            "Angular 20.0.0 Application" subgraph "App Core" APP["🚀 App
-            Component<br />Root Component"]:::component CONFIG["⚙️ App Config<br />Application
-            Bootstrap"]:::config ROUTES["🗺️ App Routes<br />Route
-            Configuration"]:::config end subgraph "Core Services &
-            Infrastructure" subgraph "Authentication" USERSERVICE["👤 User
-            Service<br />Authentication State"]:::service JWTSERVICE["🔐 JWT
-            Service<br />Token Management"]:::service AUTHCOMP["🔑 Auth
-            Component<br />Login/Register Forms"]:::component AUTHGUARD["🛡️
-            Route Guards<br />Authentication Protection"]:::guard end subgraph
-            "HTTP Infrastructure" APIINT["🔌 API Interceptor<br />Base URL
-            Handler"]:::interceptor TOKENINT["🎫 Token Interceptor<br />JWT
-            Attachment"]:::interceptor ERRORINT["❌ Error Interceptor<br />Global
-            Error Handling"]:::interceptor end subgraph "Layout Components"
-            HEADER["📋 Header Component<br />Navigation Bar"]:::component
-            FOOTER["📄 Footer Component<br />Page Footer"]:::component end end
-            subgraph "Feature Modules" subgraph "Article Management"
-            HOMECOMP["🏠 Home Component<br />Article Feed Display"]:::component
-            ARTICLECOMP["📖 Article Component<br />Article View"]:::component
-            EDITORCOMP["✏️ Editor Component<br />⚠️ BUG: Always Creates
-            New"]:::buggy ARTICLESERVICE["📚 Articles Service<br />CRUD
-            Operations"]:::service ARTICLEMETA["📊 Article Meta<br />Author &
-            Favorite Info"]:::component FAVBTN["❤️ Favorite Button<br />Article
-            Favoriting"]:::component ARTICLELIST["📋 Article List<br />Feed
-            Display"]:::component PREVIEW["👁️ Article Preview<br />List Item
-            Component"]:::component end subgraph "User Management"
-            PROFILECOMP["👤 Profile Component<br />User Profile
-            Display"]:::component SETTINGSCOMP["⚙️ Settings Component<br />User
-            Settings Form"]:::component PROFILESERVICE["👥 Profile Service<br />User
-            Data Management"]:::service FOLLOWBTN["➕ Follow Button<br />User
-            Following"]:::component PROFILEARTS["📖 Profile Articles<br />User's
-            Articles"]:::component PROFILEFAVS["❤️ Profile Favorites<br />User's
-            Favorites"]:::component end subgraph "Comments System"
-            COMMENTCOMP["💬 Comment Component<br />Comment Display"]:::component
-            COMMENTSSERVICE["💬 Comments Service<br />Comment
-            Operations"]:::service end subgraph "Shared Components" ERRORS["⚠️
-            Error List<br />Validation Display"]:::component MARKDOWN["📝
-            Markdown Pipe<br />Content Rendering"]:::pipe TAGSERVICE["🏷️ Tags
-            Service<br />Tag Management"]:::service end end end %% Data Flow
-            Connections HTML --> APP CDN --> HTML ICONS --> HTML FONTS --> HTML
-            APP --> CONFIG APP --> ROUTES APP --> HEADER APP --> FOOTER CONFIG
-            --> USERSERVICE CONFIG --> JWTSERVICE ROUTES --> AUTHGUARD AUTHGUARD
-            --> USERSERVICE USERSERVICE --> JWTSERVICE JWTSERVICE --> LS APIINT
-            --> API TOKENINT --> JWTSERVICE USERSERVICE --> APIINT
-            ARTICLESERVICE --> APIINT PROFILESERVICE --> APIINT COMMENTSSERVICE
-            --> APIINT TAGSERVICE --> APIINT HOMECOMP --> ARTICLESERVICE
-            HOMECOMP --> TAGSERVICE HOMECOMP --> ARTICLELIST ARTICLECOMP -->
-            ARTICLESERVICE ARTICLECOMP --> COMMENTSSERVICE ARTICLECOMP -->
-            COMMENTCOMP ARTICLECOMP --> ARTICLEMETA ARTICLECOMP --> MARKDOWN
-            EDITORCOMP --> ARTICLESERVICE PROFILECOMP --> PROFILESERVICE
-            PROFILECOMP --> PROFILEARTS PROFILECOMP --> PROFILEFAVS SETTINGSCOMP
-            --> USERSERVICE SETTINGSCOMP --> ERRORS AUTHCOMP --> USERSERVICE
-            AUTHCOMP --> ERRORS ARTICLELIST --> PREVIEW PREVIEW --> FAVBTN
-            PREVIEW --> ARTICLEMETA ARTICLEMETA --> FOLLOWBTN %% Color Coding
-            classDef external
-            fill:#e1f5fe,stroke:#0277bd,stroke-width:2px,color:#000 classDef
-            component fill:#e8f5e8,stroke:#2e7d32,stroke-width:2px,color:#000
-            classDef service
-            fill:#fff3e0,stroke:#ef6c00,stroke-width:2px,color:#000 classDef
-            interceptor fill:#f3e5f5,stroke:#7b1fa2,stroke-width:2px,color:#000
-            classDef config
-            fill:#e0f2f1,stroke:#00695c,stroke-width:2px,color:#000 classDef
-            storage fill:#fff8e1,stroke:#f57f17,stroke-width:2px,color:#000
-            classDef guard
-            fill:#fce4ec,stroke:#c2185b,stroke-width:2px,color:#000 classDef
-            pipe fill:#e8eaf6,stroke:#3f51b5,stroke-width:2px,color:#000
-            classDef buggy
-            fill:#ffebee,stroke:#d32f2f,stroke-width:3px,color:#000 %% Click
-            Events for GitHub Navigation click APP href
-            "https://github.com/jiteshy/angular-realworld-example-app/blob/main/src/app/app.component.ts"
-            _blank click CONFIG href
-            "https://github.com/jiteshy/angular-realworld-example-app/blob/main/src/app/app.config.ts"
-            _blank click ROUTES href
-            "https://github.com/jiteshy/angular-realworld-example-app/blob/main/src/app/app.routes.ts"
-            _blank click USERSERVICE href
-            "https://github.com/jiteshy/angular-realworld-example-app/blob/main/src/app/core/auth/services/user.service.ts"
-            _blank click JWTSERVICE href
-            "https://github.com/jiteshy/angular-realworld-example-app/blob/main/src/app/core/auth/services/jwt.service.ts"
-            _blank click AUTHCOMP href
-            "https://github.com/jiteshy/angular-realworld-example-app/blob/main/src/app/core/auth/auth.component.ts"
-            _blank click APIINT href
-            "https://github.com/jiteshy/angular-realworld-example-app/blob/main/src/app/core/interceptors/api.interceptor.ts"
-            _blank click TOKENINT href
-            "https://github.com/jiteshy/angular-realworld-example-app/blob/main/src/app/core/interceptors/token.interceptor.ts"
-            _blank click ERRORINT href
-            "https://github.com/jiteshy/angular-realworld-example-app/blob/main/src/app/core/interceptors/error.interceptor.ts"
-            _blank click HEADER href
-            "https://github.com/jiteshy/angular-realworld-example-app/blob/main/src/app/core/layout/header.component.ts"
-            _blank click FOOTER href
-            "https://github.com/jiteshy/angular-realworld-example-app/blob/main/src/app/core/layout/footer.component.ts"
-            _blank click HOMECOMP href
-            "https://github.com/jiteshy/angular-realworld-example-app/blob/main/src/app/features/article/pages/home/home.component.ts"
-            _blank click ARTICLECOMP href
-            "https://github.com/jiteshy/angular-realworld-example-app/blob/main/src/app/features/article/pages/article/article.component.ts"
-            _blank click EDITORCOMP href
-            "https://github.com/jiteshy/angular-realworld-example-app/blob/main/src/app/features/article/pages/editor/editor.component.ts"
-            _blank click ARTICLESERVICE href
-            "https://github.com/jiteshy/angular-realworld-example-app/blob/main/src/app/features/article/services/articles.service.ts"
-            _blank click PROFILECOMP href
-            "https://github.com/jiteshy/angular-realworld-example-app/blob/main/src/app/features/profile/pages/profile/profile.component.ts"
-            _blank click SETTINGSCOMP href
-            "https://github.com/jiteshy/angular-realworld-example-app/blob/main/src/app/features/settings/settings.component.ts"
-            _blank click PROFILESERVICE href
-            "https://github.com/jiteshy/angular-realworld-example-app/blob/main/src/app/features/profile/services/profile.service.ts"
-            _blank click COMMENTSSERVICE href
-            "https://github.com/jiteshy/angular-realworld-example-app/blob/main/src/app/features/article/services/comments.service.ts"
-            _blank click TAGSERVICE href
-            "https://github.com/jiteshy/angular-realworld-example-app/blob/main/src/app/features/article/services/tags.service.ts"
-            _blank click ERRORS href
-            "https://github.com/jiteshy/angular-realworld-example-app/blob/main/src/app/shared/components/list-errors.component.ts"
-            _blank click MARKDOWN href
-            "https://github.com/jiteshy/angular-realworld-example-app/blob/main/src/app/shared/pipes/markdown.pipe.ts"
-            _blank click ARTICLEMETA href
-            "https://github.com/jiteshy/angular-realworld-example-app/blob/main/src/app/features/article/components/article-meta.component.ts"
-            _blank click FAVBTN href
-            "https://github.com/jiteshy/angular-realworld-example-app/blob/main/src/app/features/article/components/favorite-button.component.ts"
-            _blank click ARTICLELIST href
-            "https://github.com/jiteshy/angular-realworld-example-app/blob/main/src/app/features/article/components/article-list.component.ts"
-            _blank click PREVIEW href
-            "https://github.com/jiteshy/angular-realworld-example-app/blob/main/src/app/features/article/components/article-preview.component.ts"
-            _blank click FOLLOWBTN href
-            "https://github.com/jiteshy/angular-realworld-example-app/blob/main/src/app/features/profile/components/follow-button.component.ts"
-            _blank click COMMENTCOMP href
-            "https://github.com/jiteshy/angular-realworld-example-app/blob/main/src/app/features/article/components/article-comment.component.ts"
-            _blank click PROFILEARTS href
-            "https://github.com/jiteshy/angular-realworld-example-app/blob/main/src/app/features/profile/components/profile-articles.component.ts"
-            _blank click PROFILEFAVS href
-            "https://github.com/jiteshy/angular-realworld-example-app/blob/main/src/app/features/profile/components/profile-favorites.component.ts"
-            _blank
+      <div class="diagram-viewport">
+        <div class="zoom-indicator" id="zoomIndicator">100%</div>
+        <div class="diagram-container" id="diagramContainer">
+          <div class="diagram-wrapper" id="diagramWrapper">
+            <div id="mermaid-diagram"></div>
           </div>
         </div>
       </div>
 
       <div class="legend">
-        <div class="legend-grid">
-          <div class="legend-item">
-            <div class="legend-color external"></div>
-            <span class="legend-label">External APIs</span>
-          </div>
-          <div class="legend-item">
-            <div class="legend-color component"></div>
-            <span class="legend-label">Components</span>
-          </div>
-          <div class="legend-item">
-            <div class="legend-color service"></div>
-            <span class="legend-label">Services</span>
-          </div>
-          <div class="legend-item">
-            <div class="legend-color interceptor"></div>
-            <span class="legend-label">Interceptors</span>
-          </div>
-          <div class="legend-item">
-            <div class="legend-color config"></div>
-            <span class="legend-label">Configuration</span>
-          </div>
-          <div class="legend-item">
-            <div class="legend-color storage"></div>
-            <span class="legend-label">Storage</span>
-          </div>
-          <div class="legend-item">
-            <div class="legend-color guard"></div>
-            <span class="legend-label">Route Guards</span>
-          </div>
-          <div class="legend-item">
-            <div class="legend-color pipe"></div>
-            <span class="legend-label">Pipes</span>
-          </div>
-          <div class="legend-item">
-            <div class="legend-color buggy"></div>
-            <span class="legend-label">Known Issues</span>
-          </div>
+        <div class="legend-item">
+          <div class="legend-color external"></div>
+          <span>External</span>
+        </div>
+        <div class="legend-item">
+          <div class="legend-color components"></div>
+          <span>Components</span>
+        </div>
+        <div class="legend-item">
+          <div class="legend-color stores"></div>
+          <span>Stores</span>
+        </div>
+        <div class="legend-item">
+          <div class="legend-color services"></div>
+          <span>Services</span>
+        </div>
+        <div class="legend-item">
+          <div class="legend-color core"></div>
+          <span>Core</span>
         </div>
       </div>
     </div>
 
     <script>
-      // Zoom functionality
-      let zoomLevel = 0.25;
-      const minZoom = 0.15;
+      // Initialize Mermaid
+      mermaid.initialize({
+        startOnLoad: true,
+        theme: "default",
+        flowchart: {
+          useMaxWidth: false,
+          htmlLabels: true,
+          curve: "basis",
+        },
+        securityLevel: "loose",
+      });
+
+      // Simplified zoom functionality
+      let currentZoom = 1;
+      const zoomStep = 0.2;
+      const minZoom = 0.2;
       const maxZoom = 3;
-      const zoomStep = 0.1;
+      let isInitialized = false;
 
-      function updateZoom() {
-        const container = document.querySelector(".diagram-container");
-        container.style.transform = `scale(${zoomLevel})`;
-
+      function updateZoomIndicator() {
         const indicator = document.getElementById("zoomIndicator");
-        indicator.textContent = Math.round(zoomLevel * 100) + "%";
+        if (indicator) {
+          indicator.textContent = Math.round(currentZoom * 100) + "%";
+        }
+      }
+
+      function calculateFitZoom() {
+        const container = document.querySelector(".diagram-container");
+        const wrapper = document.querySelector("#diagramWrapper");
+
+        if (!container || !wrapper) return 1;
+
+        // Get container size (subtract padding)
+        const containerRect = container.getBoundingClientRect();
+        const availableWidth = containerRect.width - 40; // Account for padding
+        const availableHeight = containerRect.height - 40;
+
+        // Temporarily reset zoom to measure natural size
+        wrapper.style.transform = "scale(1)";
+        const wrapperRect = wrapper.getBoundingClientRect();
+        const diagramWidth = wrapperRect.width;
+        const diagramHeight = wrapperRect.height;
+
+        // Calculate scale to fit
+        const scaleX = availableWidth / diagramWidth;
+        const scaleY = availableHeight / diagramHeight;
+
+        // Use smaller scale to ensure it fits, with a small margin
+        const optimalZoom = Math.min(scaleX, scaleY) * 0.9;
+
+        console.log(
+          `Container: ${containerRect.width}x${containerRect.height}`,
+        );
+        console.log(`Available: ${availableWidth}x${availableHeight}`);
+        console.log(`Diagram: ${diagramWidth}x${diagramHeight}`);
+        console.log(`Scales: X=${scaleX.toFixed(3)}, Y=${scaleY.toFixed(3)}`);
+        console.log(
+          `Optimal zoom: ${optimalZoom.toFixed(3)} (${Math.round(
+            optimalZoom * 100,
+          )}%)`,
+        );
+
+        return Math.max(Math.min(optimalZoom, maxZoom), minZoom);
+      }
+
+      function applyZoom() {
+        const wrapper = document.querySelector("#diagramWrapper");
+        if (wrapper) {
+          wrapper.style.transform = `scale(${currentZoom})`;
+          updateZoomIndicator();
+        }
+      }
+
+      function fitToScreen() {
+        const newZoom = calculateFitZoom();
+        currentZoom = newZoom;
+        applyZoom();
+
+        // Scroll to top-left after fitting
+        const container = document.querySelector(".diagram-container");
+        if (container) {
+          container.scrollTop = 0;
+          container.scrollLeft = 0;
+        }
       }
 
       function zoomIn() {
-        if (zoomLevel < maxZoom) {
-          zoomLevel = Math.min(maxZoom, zoomLevel + zoomStep);
-          updateZoom();
+        if (currentZoom < maxZoom) {
+          currentZoom = Math.min(currentZoom + zoomStep, maxZoom);
+          applyZoom();
         }
       }
 
       function zoomOut() {
-        if (zoomLevel > minZoom) {
-          zoomLevel = Math.max(minZoom, zoomLevel - zoomStep);
-          updateZoom();
+        if (currentZoom > minZoom) {
+          currentZoom = Math.max(currentZoom - zoomStep, minZoom);
+          applyZoom();
         }
       }
 
-      function resetZoom() {
-        zoomLevel = 0.25;
-        updateZoom();
-        setTimeout(centerDiagram, 100);
+      function zoomToOriginal() {
+        currentZoom = 1;
+        applyZoom();
+
+        // Scroll to top-left after setting to 100%
+        const container = document.querySelector(".diagram-container");
+        if (container) {
+          container.scrollTop = 0;
+          container.scrollLeft = 0;
+        }
       }
 
-      function centerDiagram() {
-        const diagramEl = document.getElementById("diagram");
-        const scrollLeft = (diagramEl.scrollWidth - diagramEl.clientWidth) / 2;
-        const scrollTop = (diagramEl.scrollHeight - diagramEl.clientHeight) / 2;
-        diagramEl.scrollLeft = scrollLeft;
-        diagramEl.scrollTop = scrollTop;
+      function forceRefit() {
+        setTimeout(() => {
+          const newZoom = calculateFitZoom();
+          currentZoom = newZoom;
+          applyZoom();
+          console.log(
+            `Force refit complete - zoom set to ${Math.round(
+              currentZoom * 100,
+            )}%`,
+          );
+        }, 100);
       }
 
-      // Keyboard controls
+      function initializeDiagram() {
+        console.log("Initializing diagram...");
+
+        // Wait for Mermaid to fully render
+        setTimeout(() => {
+          const diagram = document.querySelector("#mermaid-diagram svg");
+          if (!diagram) {
+            console.error("Diagram SVG not found, retrying...");
+            setTimeout(initializeDiagram, 500);
+            return;
+          }
+
+          // Start with fit-to-screen zoom
+          fitToScreen();
+
+          isInitialized = true;
+          console.log("Diagram initialization complete");
+        }, 800);
+      }
+
+      // Keyboard shortcuts
       document.addEventListener("keydown", function (e) {
-        // Avoid zooming when typing in input fields
         if (e.target.tagName === "INPUT" || e.target.tagName === "TEXTAREA") {
           return;
         }
@@ -468,13 +511,19 @@
           zoomOut();
         } else if (e.key === "0") {
           e.preventDefault();
-          resetZoom();
+          fitToScreen();
+        } else if (e.key === "1") {
+          e.preventDefault();
+          zoomToOriginal();
+        } else if (e.key === "f" || e.key === "F") {
+          e.preventDefault();
+          fitToScreen();
         }
       });
 
       // Mouse wheel zoom
       document
-        .getElementById("diagram")
+        .getElementById("diagramContainer")
         .addEventListener("wheel", function (e) {
           if (e.ctrlKey || e.metaKey) {
             e.preventDefault();
@@ -486,22 +535,152 @@
           }
         });
 
-      // Initialize Mermaid with GitHub link support
-      mermaid.initialize({
-        startOnLoad: true,
-        theme: "default",
-        flowchart: {
-          useMaxWidth: false,
-          htmlLabels: true,
-        },
-        securityLevel: "loose",
+      // Window resize handler
+      window.addEventListener("resize", function () {
+        if (isInitialized) {
+          setTimeout(fitToScreen, 100);
+        }
       });
 
-      // Initialize zoom and center diagram on load
-      document.addEventListener("DOMContentLoaded", function () {
-        updateZoom();
-        setTimeout(centerDiagram, 500);
-      });
+      // Mermaid diagram definition
+      const diagramDefinition = `
+flowchart TD
+    %% External API Layer
+    subgraph "External Dependencies"
+        API["🌐 RealWorld API<br/>api.realworld.io"]:::external
+        CDN["🎨 CDN Resources<br/>CSS/Images"]:::external
+    end
+    
+    %% Main Application Layer
+    subgraph "Angular Application"
+        APP["📱 AppComponent<br/>Bootstrap"]:::components
+        
+        subgraph "Core Module"
+            AUTH["🔐 Authentication"]:::core
+            LAYOUT["🎨 Layout"]:::core
+            INTERCEPT["🔄 Interceptors"]:::core
+            MODELS["📋 Models"]:::core
+        end
+        
+        subgraph "Feature Modules"
+            ARTICLE["📝 Articles"]:::components
+            PROFILE["👤 Profile"]:::components
+            SETTINGS["⚙️ Settings"]:::components
+        end
+        
+        subgraph "Services Layer"
+            USERSERVICE["🧑‍💻 UserService<br/>BehaviorSubject"]:::services
+            ARTICLESERVICE["📰 ArticleService"]:::services
+            PROFILESERVICE["👥 ProfileService"]:::services
+            COMMENTSERVICE["💬 CommentService"]:::services
+            TAGSERVICE["🏷️ TagService"]:::services
+            JWTSERVICE["🔑 JwtService"]:::services
+        end
+        
+        subgraph "HTTP Layer"
+            APIINT["🔗 API Interceptor<br/>Base URL"]:::core
+            TOKENINT["🎫 Token Interceptor<br/>JWT Headers"]:::core
+            ERRORINT["❌ Error Interceptor<br/>Error Handling"]:::core
+        end
+        
+        subgraph "State Management"
+            AUTHSTATE["🔐 User State<br/>BehaviorSubject"]:::stores
+            LOCALSTORE["💾 localStorage<br/>JWT Token"]:::stores
+        end
+        
+        subgraph "Shared Components"
+            ERRORS["⚠️ List Errors"]:::components
+            PIPES["🔄 Markdown Pipe"]:::components
+            DIRECTIVES["📋 Directives"]:::components
+        end
+    end
+    
+    %% Data Flow Connections
+    API --> APIINT
+    APIINT --> TOKENINT
+    TOKENINT --> ERRORINT
+    ERRORINT --> USERSERVICE
+    ERRORINT --> ARTICLESERVICE
+    ERRORINT --> PROFILESERVICE
+    ERRORINT --> COMMENTSERVICE
+    ERRORINT --> TAGSERVICE
+    
+    %% Service to State Connections
+    USERSERVICE --> AUTHSTATE
+    JWTSERVICE --> LOCALSTORE
+    
+    %% Component to Service Connections
+    AUTH --> USERSERVICE
+    ARTICLE --> ARTICLESERVICE
+    ARTICLE --> COMMENTSERVICE
+    ARTICLE --> TAGSERVICE
+    PROFILE --> PROFILESERVICE
+    SETTINGS --> USERSERVICE
+    
+    %% Core Infrastructure
+    APP --> LAYOUT
+    APP --> AUTH
+    LAYOUT --> AUTHSTATE
+    
+    %% Shared Components Usage
+    AUTH --> ERRORS
+    ARTICLE --> ERRORS
+    SETTINGS --> ERRORS
+    ARTICLE --> PIPES
+    
+    %% Authentication Flow
+    AUTHSTATE --> AUTH
+    AUTHSTATE --> LAYOUT
+    AUTHSTATE --> INTERCEPT
+    
+    %% External Dependencies
+    CDN --> APP
+    
+    %% Click Events for GitHub Navigation
+    click APP href "https://github.com/jiteshy/angular-realworld-example-app/blob/main/src/app/app.component.ts" _blank
+    click AUTH href "https://github.com/jiteshy/angular-realworld-example-app/blob/main/src/app/core/auth/auth.component.ts" _blank
+    click LAYOUT href "https://github.com/jiteshy/angular-realworld-example-app/blob/main/src/app/core/layout/header.component.ts" _blank
+    click ARTICLE href "https://github.com/jiteshy/angular-realworld-example-app/blob/main/src/app/features/article/pages/home/home.component.ts" _blank
+    click PROFILE href "https://github.com/jiteshy/angular-realworld-example-app/blob/main/src/app/features/profile/pages/profile/profile.component.ts" _blank
+    click SETTINGS href "https://github.com/jiteshy/angular-realworld-example-app/blob/main/src/app/features/settings/settings.component.ts" _blank
+    click USERSERVICE href "https://github.com/jiteshy/angular-realworld-example-app/blob/main/src/app/core/auth/services/user.service.ts" _blank
+    click ARTICLESERVICE href "https://github.com/jiteshy/angular-realworld-example-app/blob/main/src/app/features/article/services/articles.service.ts" _blank
+    click PROFILESERVICE href "https://github.com/jiteshy/angular-realworld-example-app/blob/main/src/app/features/profile/services/profile.service.ts" _blank
+    click COMMENTSERVICE href "https://github.com/jiteshy/angular-realworld-example-app/blob/main/src/app/features/article/services/comments.service.ts" _blank
+    click TAGSERVICE href "https://github.com/jiteshy/angular-realworld-example-app/blob/main/src/app/features/article/services/tags.service.ts" _blank
+    click JWTSERVICE href "https://github.com/jiteshy/angular-realworld-example-app/blob/main/src/app/core/auth/services/jwt.service.ts" _blank
+    click APIINT href "https://github.com/jiteshy/angular-realworld-example-app/blob/main/src/app/core/interceptors/api.interceptor.ts" _blank
+    click TOKENINT href "https://github.com/jiteshy/angular-realworld-example-app/blob/main/src/app/core/interceptors/token.interceptor.ts" _blank
+    click ERRORINT href "https://github.com/jiteshy/angular-realworld-example-app/blob/main/src/app/core/interceptors/error.interceptor.ts" _blank
+    click ERRORS href "https://github.com/jiteshy/angular-realworld-example-app/blob/main/src/app/shared/components/list-errors.component.ts" _blank
+    click PIPES href "https://github.com/jiteshy/angular-realworld-example-app/blob/main/src/app/shared/pipes/markdown.pipe.ts" _blank
+    click DIRECTIVES href "https://github.com/jiteshy/angular-realworld-example-app/blob/main/src/app/core/auth/if-authenticated.directive.ts" _blank
+    
+    %% Styling
+    classDef external fill:#fee2e2,stroke:#dc2626,stroke-width:2px,color:#991b1b
+    classDef components fill:#dbeafe,stroke:#2563eb,stroke-width:2px,color:#1d4ed8
+    classDef stores fill:#f3e8ff,stroke:#7c3aed,stroke-width:2px,color:#5b21b6
+    classDef services fill:#d1fae5,stroke:#059669,stroke-width:2px,color:#047857
+    classDef core fill:#fef3c7,stroke:#d97706,stroke-width:2px,color:#92400e
+`;
+
+      // Render the diagram
+      mermaid
+        .render("mermaid-svg", diagramDefinition)
+        .then(function (result) {
+          console.log("Mermaid render successful");
+          const diagramElement = document.getElementById("mermaid-diagram");
+          diagramElement.innerHTML = result.svg;
+
+          // Initialize with error handling
+          initializeDiagram();
+        })
+        .catch(function (error) {
+          console.error("Mermaid render failed:", error);
+          const diagramElement = document.getElementById("mermaid-diagram");
+          diagramElement.innerHTML =
+            '<div style="padding: 20px; text-align: center; color: #666;">Failed to render diagram. Please refresh the page.</div>';
+        });
     </script>
   </body>
 </html>

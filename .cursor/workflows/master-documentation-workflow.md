@@ -8,10 +8,40 @@ This workflow creates a **self-improving documentation system** that:
 
 1. Applies agent rules and context
 2. Generates comprehensive documentation from source code using **generic prompt**
-3. Validates documentation accuracy against the actual codebase (results displayed in chat)
-4. Captures **project-specific learnings** and updates documentation using **composite context**
-5. Creates architecture diagrams based on validated documentation
-6. Creates a feedback loop for continuous improvement **without polluting generic prompts**
+3. Validates documentation accuracy against the actual codebase AND applies corrections using **composite context**
+4. Creates architecture diagrams based on validated documentation
+5. Creates a feedback loop for continuous improvement **without polluting generic prompts**
+6. **Tracks execution history** with automatic run logging for audit and improvement
+
+## Workflow Run History Tracking
+
+Every workflow execution automatically creates/updates `.cursor/workflows/workflow-run-history.md` with:
+
+- **Timestamp**: When the workflow was executed
+- **Command**: Which execution mode was used (default, --quick, --doc-only, etc.)
+- **Files Generated**: List of all files created or modified during execution
+- **Execution Duration**: Time taken for the workflow
+- **Success Status**: Whether the workflow completed successfully
+
+**History File Format**:
+
+```markdown
+# Workflow Execution History
+
+## Run #[N] - [YYYY-MM-DD HH:MM:SS]
+
+- **Command**: Execute documentation workflow [flags]
+- **Mode**: [Full/Quick/Doc-Only/Diagram-Only/Validation-Only]
+- **Duration**: [X] minutes
+- **Status**: [SUCCESS/FAILED/PARTIAL]
+- **Files Generated**:
+  - docs/PROJECT_DOCUMENTATION.md (created/updated)
+  - docs/architecture_diagram.html (created/updated)
+  - .cursor/learning/workflow-learnings.md (created/updated)
+- **Notes**: [Any relevant execution notes]
+```
+
+This provides automatic audit trail and helps identify patterns in workflow usage and success rates.
 
 ## Execution Sequence
 
@@ -33,11 +63,11 @@ This workflow creates a **self-improving documentation system** that:
 
 **Output**: `docs/PROJECT_DOCUMENTATION.md`
 
-### Phase 3: Documentation Validation & Correction
+### Phase 3: Documentation Validation & Correction (Enhanced)
 
 **Execute**: `.cursor/prompts/documentation-validation-prompt.md`
 
-**Goal**: Systematically validate the generated documentation against the source code to identify inaccuracies.
+**Goal**: Systematically validate the generated documentation against the source code to identify inaccuracies AND apply corrections using composite context.
 
 **Inputs**:
 
@@ -45,25 +75,25 @@ This workflow creates a **self-improving documentation system** that:
 - Access to complete source codebase
 - The **generic** documentation generation prompt
 
+**Actions**:
+
+1. **Validation**: Systematically verify every claim in the documentation against the actual source code
+2. **Learning Creation**: Create `.cursor/learning/workflow-learnings.md` with **project-specific validation insights, patterns, and technology-specific validation rules**
+3. **Composite Context Application**: Update `docs/PROJECT_DOCUMENTATION.md` using BOTH:
+   - The generic `.cursor/prompts/documentation-generation-prompt.md`
+   - The project-specific `.cursor/learning/workflow-learnings.md`
+4. **Learning Enhancement**: Update `.cursor/learning/workflow-learnings.md` with additional execution metrics, patterns, and insights
+5. **Generic Prompt Preservation**: Keep `.cursor/prompts/documentation-generation-prompt.md` unchanged and reusable
+
 **Outputs**:
 
 - Display validation findings in chat window
-- Create `.cursor/learning/workflow-learnings.md` with **project-specific validation insights, patterns, and technology-specific validation rules**
+- Corrected and validated `docs/PROJECT_DOCUMENTATION.md`
+- `.cursor/learning/workflow-learnings.md` with project-specific validation insights and technology-specific rules
+- `.cursor/learning/VALIDATION_REPORT.md` with detailed accuracy metrics and validation findings
 - **DO NOT** update the generic documentation-generation-prompt.md
 
-### Phase 4: Improvement Application
-
-**Goal**: Apply corrections and improvements to documentation using **composite context**.
-
-**Actions**:
-
-1. **Composite Context Application**: Update `docs/PROJECT_DOCUMENTATION.md` using BOTH:
-   - The generic `.cursor/prompts/documentation-generation-prompt.md`
-   - The project-specific `.cursor/learning/workflow-learnings.md`
-2. **Project-Specific Learning Enhancement**: Update `.cursor/learning/workflow-learnings.md` with additional execution metrics, patterns, and insights
-3. **Generic Prompt Preservation**: Keep `.cursor/prompts/documentation-generation-prompt.md` unchanged and reusable
-
-### Phase 5: Architecture Diagram Generation
+### Phase 4: Architecture Diagram Generation
 
 **Execute**: `.cursor/prompts/diagram-generation-prompt.md`
 
@@ -71,7 +101,7 @@ This workflow creates a **self-improving documentation system** that:
 
 **Inputs**:
 
-- Validated and corrected documentation from Phase 4
+- Validated and corrected documentation from Phase 3
 - Codebase analysis
 - Component mapping information
 
@@ -79,113 +109,228 @@ This workflow creates a **self-improving documentation system** that:
 
 ## Execution Instructions
 
-**Important**: Maintain clean separation between generic (reusable) and project-specific (learning) components. Display validation results in chat while capturing learnings for future workflow improvements.
+### Universal Step 0: Initialize Workflow Run History
 
-**Final Deliverables**:
+```
+Create or append to .cursor/workflows/workflow-run-history.md with:
+- Current timestamp
+- Command being executed (with flags)
+- Execution mode
+- Start time for duration tracking
+```
 
-- `docs/PROJECT_DOCUMENTATION.md` - Comprehensive validated documentation (updated with composite context)
-- `docs/architecture_diagram.html` - Interactive architecture diagram
-- `.cursor/learning/workflow-learnings.md` - Project-specific validation insights and technology-specific rules
-
-### Step 1: Apply Agent Rules
+### Universal Step 1: Apply Agent Rules
 
 ```
 Read .cursor/rules/rules.md and acknowledge the agent role as a principal software engineer with expertise in frontend web applications and backend REST services.
 ```
 
-### Step 2: Generate Initial Documentation
+### Flag-Based Execution Steps
+
+#### Default (No Flags): Full Workflow
 
 ```
-Apply the GENERIC documentation generation prompt to analyze the current codebase and produce comprehensive documentation with universal verification requirements.
+Step 0: Initialize Workflow Run History
+Step 1: Apply Agent Rules
+Step 2: Generate Initial Documentation (using generic prompt)
+Step 3: Validate Documentation Accuracy and Apply Corrections
+Step 4: Generate Architecture Diagram
+Step 5: Complete Workflow Run History (log completion, duration, files generated)
 ```
 
-### Step 3: Validate Documentation Accuracy
+#### --quick: Quick Mode
 
 ```
-Apply the documentation validation prompt to systematically verify every claim in the generated documentation against the actual source code. Display all validation findings in chat and CREATE `.cursor/learning/workflow-learnings.md` with PROJECT-SPECIFIC insights, patterns, technology-specific validation rules, and metrics for this project type.
+Step 0: Initialize Workflow Run History
+Step 1: Apply Agent Rules
+Step 2: Generate Initial Documentation (using generic prompt)
+Step 3: Generate Architecture Diagram (skip validation)
+Step 4: Complete Workflow Run History (log completion, duration, files generated)
 ```
 
-### Step 4: Apply Corrections and Improvements with Composite Context
+#### --doc-only: Documentation Only
 
 ```
-Based on validation findings:
-1. Correct inaccurate statements in the documentation using COMPOSITE CONTEXT:
-   - Generic documentation generation guidelines
-   - Project-specific validation learnings and technology-specific rules
-2. Update `.cursor/learning/workflow-learnings.md` with execution results, accuracy metrics, successful patterns, and technology-specific insights
-3. PRESERVE the generic documentation-generation-prompt.md for reuse across different project types
+Step 0: Initialize Workflow Run History
+Step 1: Apply Agent Rules
+Step 2: Generate Initial Documentation (using generic prompt)
+Step 3: Complete Workflow Run History (log completion, duration, files generated)
 ```
 
-### Step 5: Generate Architecture Diagram
+#### --diagram-only: Diagram Only
 
 ```
-Apply the architecture diagram prompt using both the validated documentation and direct codebase analysis to create accurate architectural representations.
+Step 0: Initialize Workflow Run History
+Step 1: Apply Agent Rules
+Step 2: Generate Architecture Diagram
+   - Requires existing docs/PROJECT_DOCUMENTATION.md
+   - Uses existing documentation as primary source
+Step 3: Complete Workflow Run History (log completion, duration, files generated)
+```
+
+#### --validation-only: Validation Only
+
+```
+Step 0: Initialize Workflow Run History
+Step 1: Apply Agent Rules
+Step 2: Validate Documentation Accuracy and Apply Corrections
+   - Requires existing docs/PROJECT_DOCUMENTATION.md
+   - Creates learning file and applies composite context corrections
+Step 3: Complete Workflow Run History (log completion, duration, files generated)
 ```
 
 ## Success Criteria
 
-**Phase 1 Success**:
+### Universal Success (All Executions)
 
+- [ ] Workflow run history initialized and tracked
 - [ ] Agent rules applied and acknowledged
 - [ ] Role and expertise boundaries established
+- [ ] Flag-specific phases completed successfully
+- [ ] All outputs generated according to flag requirements
+- [ ] Workflow run history completed with execution details
 
-**Phase 2 Success**:
+### Flag-Specific Success Criteria
+
+#### Default (No Flags): Full Workflow Success
+
+- [ ] Comprehensive documentation generated using generic prompt
+- [ ] Every factual claim verified against source code
+- [ ] All inaccuracies corrected using composite context
+- [ ] Architecture diagram created with clickable components
+- [ ] Project-specific learning file with technology insights
+- [ ] Complete documentation system ready for team use
+
+#### --quick: Quick Mode Success
+
+- [ ] Documentation generated using generic prompt
+- [ ] Architecture diagram created with GitHub navigation
+- [ ] Total execution time under 35 minutes
+- [ ] All major project aspects covered (unvalidated)
+
+#### --doc-only: Documentation Only Success
 
 - [ ] Comprehensive documentation generated using generic prompt
 - [ ] All major project aspects covered
-- [ ] Documentation follows the specified structure
+- [ ] Documentation follows specified structure
+- [ ] Draft ready for review or further validation
 
-**Phase 3 Success**:
+#### --diagram-only: Diagram Only Success
+
+- [ ] Architecture diagram created from existing documentation
+- [ ] Diagram accurately represents system architecture
+- [ ] Clickable components link to actual source files
+- [ ] Visual representation matches documented structure
+
+#### --validation-only: Validation Only Success
 
 - [ ] Every factual claim verified against source code
-- [ ] All inaccuracies identified with evidence in chat
-- [ ] Project-specific patterns of errors analyzed and documented in learning file
-- [ ] Technology-specific validation insights captured for this project type
+- [ ] All inaccuracies corrected using composite context
+- [ ] Project-specific learning file created with technology insights
+- [ ] Documentation accuracy improved to 95%+ from baseline
 
-**Phase 4 Success**:
+## Final Deliverables by Flag
 
-- [ ] Documentation corrected using composite context (generic + project-specific)
-- [ ] Generic prompt preserved for reuse across projects
-- [ ] Learning file contains technology-specific validation rules and patterns
-- [ ] Project-specific improvement insights captured
+### Default (No Flags): Full Workflow
 
-**Phase 5 Success**:
+- ✅ `docs/PROJECT_DOCUMENTATION.md` (validated and corrected)
+- ✅ `docs/architecture_diagram.html` (interactive with GitHub links)
+- ✅ `.cursor/learning/workflow-learnings.md` (project-specific insights)
+- ✅ `.cursor/learning/VALIDATION_REPORT.md` (accuracy metrics and validation findings)
+- ✅ `.cursor/workflows/workflow-run-history.md` (execution audit trail)
+- ✅ Validation report with accuracy metrics
+- ⏱️ **Time Investment**: 40-58 minutes
 
-- [ ] Architecture diagram created with clickable components
-- [ ] Diagram accurately represents validated documentation
-- [ ] Visual representation matches actual codebase structure
+### --quick: Quick Mode
+
+- ✅ `docs/PROJECT_DOCUMENTATION.md` (unvalidated, comprehensive)
+- ✅ `docs/architecture_diagram.html` (interactive with GitHub links)
+- ✅ `.cursor/workflows/workflow-run-history.md` (execution audit trail)
+- ⏱️ **Time Investment**: 22-33 minutes
+
+### --doc-only: Documentation Only
+
+- ✅ `docs/PROJECT_DOCUMENTATION.md` (comprehensive draft)
+- ✅ `.cursor/workflows/workflow-run-history.md` (execution audit trail)
+- ⏱️ **Time Investment**: 12-18 minutes
+
+### --diagram-only: Diagram Only
+
+- ✅ `docs/architecture_diagram.html` (interactive with GitHub links)
+- ✅ `.cursor/workflows/workflow-run-history.md` (execution audit trail)
+- ⏱️ **Time Investment**: 12-18 minutes
+
+### --validation-only: Validation Only
+
+- ✅ `docs/PROJECT_DOCUMENTATION.md` (validated and corrected)
+- ✅ `.cursor/learning/workflow-learnings.md` (project-specific insights)
+- ✅ `.cursor/learning/VALIDATION_REPORT.md` (accuracy metrics and validation findings)
+- ✅ `.cursor/workflows/workflow-run-history.md` (execution audit trail)
+- ✅ Validation report with accuracy metrics
+- ⏱️ **Time Investment**: 20-28 minutes
 
 ## Quality Assurance
 
-**Final Documentation Must**:
+### Universal Quality Requirements
 
-- [ ] Contain only verified, accurate information
-- [ ] Use consistent package manager throughout
-- [ ] Document only features that actually exist
-- [ ] Provide working commands and setup instructions
-- [ ] Match actual project structure and patterns
-- [ ] Enable successful project onboarding
+- [ ] Generic prompt remains technology-agnostic and reusable
+- [ ] Clean separation between generic and project-specific components
+- [ ] All outputs follow established formatting standards
+- [ ] Flag-specific requirements met within timeline
 
-**Generic Prompt Must**:
+### Validation-Enabled Flags Quality (Default, --validation-only)
 
-- [ ] Remain technology-agnostic and reusable
-- [ ] Include only universal validation principles
-- [ ] Work for frontend, backend, and different tech stacks
-- [ ] Not contain project-specific validation rules
+- [ ] Final documentation contains only verified, accurate information
+- [ ] Consistent package manager usage throughout
+- [ ] Only features that actually exist are documented
+- [ ] All commands and setup instructions work correctly
+- [ ] Documentation matches actual project structure and patterns
 
-**Project Learning File Must**:
+### Diagram-Enabled Flags Quality (Default, --quick, --diagram-only)
 
-- [ ] Contain technology-specific validation insights
-- [ ] Include project-type-specific patterns and rules
-- [ ] Capture execution metrics for this project type
-- [ ] Be ready for composite context application
+- [ ] Architecture diagram accurately represents system architecture
+- [ ] Clickable components link to actual source files
+- [ ] Visual representation matches documented/actual structure
+- [ ] Interactive features (zoom, navigation) work correctly
 
-**Architecture Diagram Must**:
+## 🎊 Simple & Powerful
 
-- [ ] Accurately represent the validated system architecture
-- [ ] Include clickable components linking to actual files
-- [ ] Be based on verified documentation rather than assumptions
-- [ ] Provide clear visual understanding of the system
+This streamlined documentation workflow provides **maximum flexibility with minimal complexity**:
+
+### ✅ **One Base Command, Five Modes**
+
+```bash
+Execute documentation workflow                    # Full workflow (recommended)
+Execute documentation workflow --quick           # Fast docs + diagram, skip validation
+Execute documentation workflow --doc-only        # Documentation draft only
+Execute documentation workflow --diagram-only    # Architecture diagram only
+Execute documentation workflow --validation-only # Accuracy check only
+```
+
+### 🚀 **Key Benefits**
+
+- **📚 One Command to Learn**: `Execute documentation workflow` with optional flags
+- **⚡ Time Flexibility**: Choose 12 minutes to 58 minutes based on needs
+- **🎯 Perfect Defaults**: No flags = complete workflow with validation
+- **🔧 Developer-Friendly**: Standard CLI flag syntax familiar to all developers
+- **📊 Clear Outputs**: Always know exactly what you'll get
+
+### 🎯 **Perfect For**
+
+- **New Projects**: Use default (no flags) for complete documentation
+- **Quick Prototypes**: Use `--quick` for fast results without validation
+- **Documentation Drafts**: Use `--doc-only` for initial documentation
+- **Existing Documentation**: Use `--validation-only` to check accuracy
+- **Visual Architecture**: Use `--diagram-only` for diagrams
+
+### 🏆 **Enterprise Ready**
+
+- **100% Accuracy Standard**: Maintained for validation-enabled modes
+- **Technology Agnostic**: Works with any programming language or framework
+- **Self-Improving**: Builds project-specific learning without polluting generic prompts
+- **Production Quality**: Generates professional documentation ready for team use
+
+**Start with the default command and add flags as needed** - it's that simple! 🎉
 
 ## Continuous Improvement Architecture
 
@@ -196,24 +341,3 @@ This workflow creates a **clean learning system** where:
 - **Composite Context**: Final documentation updates use both generic principles and project-specific learnings
 - **Scalability**: Each project type builds its own learning base without polluting generic prompts
 - **Reusability**: The same generic prompt works for diverse technology stacks
-
-## Execution Command
-
-**Run the complete workflow:**
-
-```
-Execute the master documentation workflow: Apply agent rules, generate documentation using generic prompt, validate accuracy, capture project-specific learnings, apply corrections using composite context, and create architecture diagrams.
-```
-
-This will automatically chain all five phases and provide a comprehensive, validated, and continuously improving documentation system with accurate architectural visualization while maintaining clean separation between generic and project-specific components.
-
-## Expected Timeline
-
-- **Phase 1**: 2-3 minutes (rules application)
-- **Phase 2**: 10-15 minutes (documentation generation with generic prompt)
-- **Phase 3**: 15-20 minutes (validation and project-specific learning creation)
-- **Phase 4**: 5-10 minutes (applying corrections with composite context)
-- **Phase 5**: 10-15 minutes (architecture diagram generation)
-- **Total**: 42-63 minutes for complete workflow
-
-Execute this workflow to create accurate, validated documentation with architectural diagrams while building project-specific learnings without polluting generic, reusable prompts.
